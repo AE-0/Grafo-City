@@ -6,7 +6,7 @@ import { Sky } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/objects/
 
 let camera, scene, renderer, controls;
 let sky, sun;
-
+/* jejejeje*/
 scene = new THREE.Scene();
 scene.background = new THREE.Color( 0x8cc7de );
 
