@@ -8,3 +8,4 @@ La experiencia más interactiva de una ciudad.
 ## Recursos
 
 [Three.js](https://threejs.org) Librería Javascript 3D
+[Blender](https://www.blender.org) Modelos 3D
