@@ -6,7 +6,6 @@ import { Sky } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/objects/
 
 let camera, scene, renderer, controls;
 let sky, sun;
-/* jejejeje*/
 scene = new THREE.Scene();
 scene.background = new THREE.Color( 0x8cc7de );
 
@@ -152,7 +151,7 @@ sun = new THREE.Vector3();
 
 var elevation = -20;
 
-const uniforms = sky.material.uniforms;
+var uniforms = sky.material.uniforms;
 uniforms[ 'turbidity' ].value = 20;
 uniforms[ 'rayleigh' ].value = 0.425;
 uniforms[ 'mieCoefficient' ].value = 0.002;
@@ -194,7 +193,7 @@ scene.add( dirLightHelper );
 
 const ground = new THREE.Mesh(
     new THREE.BoxGeometry( 1750, 2000, 1000, 1 ),
-    new THREE.MeshStandardMaterial( { color: 0xa0adaf } )
+    new THREE.MeshStandardMaterial( { color: 0x233426  } )
 );
 ground.rotation.x = - Math.PI / 2;
 ground.position.set( - 500, - 500, 500)
@@ -360,23 +359,42 @@ function animate() {
     sim.rotation.y += 0.02;
     sim2.rotation.y += 0.02;
     
-    /*
-    elevation += 0.5 
+    elevation += 0.05553
     const phi = THREE.MathUtils.degToRad( 90 - elevation );
     const theta = THREE.MathUtils.degToRad( 180 );
     sun.setFromSphericalCoords( 1, phi, theta );
     uniforms[ 'sunPosition' ].value.copy( sun );
 
+    if ( elevation > 90 ) {
+        hemiLight.intensity -= 0.000203;
+        dirLight.intensity -= 0.000203;
+        hemiLight.color.setHSL( 28, 95, 46 ); 
+        dirLight.color.setHSL( 28, 95, 46 );
+    }
+
     if ( elevation > 180 ) {
         hemiLight.intensity = 0;
         dirLight.intensity = 0.04;
     }
-    if ( elevation > 360 ) {
+    if ( elevation > 240 ) {
         elevation = 0;
-        hemiLight.intensity = 0.2;
-        dirLight.intensity = 0.5;
+        hemiLight.intensity += 0.25555;
+        dirLight.intensity += 0.55555;
+
+       /*  uniforms[ 'turbidity' ].value += 0.988;
+        uniforms[ 'rayleigh' ].value += 0.43157;
+        uniforms[ 'mieCoefficient' ].value += 0.0011;
+        uniforms[ 'mieDirectionalG' ].value += 0.11; 
+        */
+       
     }
-    */
+    if ( elevation > 360) {
+        hemiLight.color.setHSL( 34, 100, 50 );
+        dirLight.color.setHSL( 34, 100, 50 );
+        hemiLight.intensity += 0.4199;
+        dirLight.intensity += 0.5199; 
+    }
+
     controls.update();
     render();
 }
