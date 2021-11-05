@@ -50,8 +50,7 @@ houses();
 buildings();
 cars();
 mapa();
-//genCalles();
-
+let coord = [{x:-50, y:0, z:200}, {x:-60, y:0, z:350}, {x:-500, y:0, z:300}, {x:-50, y:0, z:290}, {x:-500, y:0, z:200}, {x:-50, y:0, z:700}, {x:-60, y:0, z:850}, {x:-500, y:0, z:700}, {x:-500, y:0, z:850}, {x:-800, y:0, z:900}];
 function houses() {
     let n = 5;
     for (let index = 1; index <= n; index++) {
@@ -60,22 +59,19 @@ function houses() {
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/house_type0' + index + '.obj', (root) => {
-
-                let coordCasas = [{x:100, y:0, z:200}, {x:-200, y:0, z:300}, {x:-400, y:0, z:200}, {x:-500, y:0, z:200}, {x:-600, y:0, z:200}];
-
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                // randomX = - (Math.random() * 800), randomZ = Math.random() * 1000; // necesita alg spacing
-                    root.position.set( coordCasas[index - 1].x , coordCasas[index - 1].y , coordCasas[index - 1].z );
+                    root.position.set( coord[index - 1].x , coord[index - 1].y , coord[index - 1].z );
                     root.rotation.y = Math.PI / - 2;
                     root.castShadow = true;
                     root.receiveShadow = true;
                     root.name = 'house' + index + '';
                     scene.add(root);
-                    genGrafo("house");
+                    genGrafo("house", index - 1);
             });
         });
     }
 }
+
 
 function buildings() {
     let buildingsArray = ["school", "agua", "luz", "hospital", "bomberos"];
@@ -86,14 +82,13 @@ function buildings() {
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/large_building0' + index + '.obj', (root) => {
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                randomX = - (Math.random() * 800), randomZ = Math.random() * 1400; // necesita alg spacing
-                root.position.set(randomX, 0, randomZ);
+                root.position.set( coord[index + 4].x , coord[index + 4].y , coord[index + 4].z );
                 root.rotation.y = Math.PI / - 2;
                 root.castShadow = true;
                 root.receiveShadow = true;
                 root.name = buildingsArray[index - 1];
                 scene.add(root);
-                genGrafo(buildingsArray[index - 1]);
+                genGrafo(buildingsArray[index - 1], index + 4);
             });
         });
     }
@@ -214,12 +209,9 @@ function onWindowResize() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-<<<<<<< Updated upstream
-=======
-function genGrafo(type) {
-    nodos.push({ id: ++lastNodo, type: type, weight: parseInt(Math.random() * 100 + 1), x: randomX, z: randomZ })
+function genGrafo(type , index) {
+    nodos.push({ id: ++lastNodo, type: type, weight: parseInt(Math.random() * 100 + 1), x: coord[index].x , z: coord[index].z })
     globalThis.nodos = nodos;
-   //if ( lastNodo > 9 ) genCalles();
     if ( type !== "house" ) return;
     let nRandom = Math.floor(Math.random() * 5);
     let l = nodos[lastNodo - 1];
@@ -259,35 +251,9 @@ function genGrafo(type) {
 }
 
 
-function genCalles() {
-    var sortedNodos = [];
-    sortedNodos =  JSON.parse(JSON.stringify(nodos));
-    sortedNodos.sort(function(a, b){return a.z - b.z});
-    globalThis.sortedNodos = sortedNodos;
-    var lastSort = sortedNodos.length - 1;
-    var leastZ = sortedNodos[0].z
-    var leastX = sortedNodos[0].x
-    var mostZ = sortedNodos[lastSort].z
-    var lastRoad = 0;
-    var diffX = Math.abs(sortedNodos[lastSort].x) - Math.abs(sortedNodos[0].x);
-    globalThis.diffX = diffX;
-    
-    for (let index = 0; index < 2 * (Math.round( mostZ / 100 ) ); index++) {
-        
-        mtlLoader.load('./res/models/road_straight.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/road_straight.obj', (root) => {
-                root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                root.position.z = leastZ;
-                root.position.x = leastX + 70;
-                root.rotation.y = Math.PI / 2;
->>>>>>> Stashed changes
-
-
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+
 
 function onMouseDown(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -300,41 +266,41 @@ function animate() {
     sim.rotation.y += 0.02;
     sim2.rotation.y += 0.02;
     
-    elevation += 0.05553
-    const phi = THREE.MathUtils.degToRad( 90 - elevation );
-    const theta = THREE.MathUtils.degToRad( 180 );
-    sun.setFromSphericalCoords( 1, phi, theta );
-    uniforms[ 'sunPosition' ].value.copy( sun );
+    // elevation += 0.05553
+    // const phi = THREE.MathUtils.degToRad( 90 - elevation );
+    // const theta = THREE.MathUtils.degToRad( 180 );
+    // sun.setFromSphericalCoords( 1, phi, theta );
+    // uniforms[ 'sunPosition' ].value.copy( sun );
 
-    if ( elevation > 90 ) {
-        hemiLight.intensity -= 0.000203;
-        dirLight.intensity -= 0.000203;
-        hemiLight.color.setHSL( 28, 95, 46 ); 
-        dirLight.color.setHSL( 28, 95, 46 );
-    }
+    // if ( elevation > 90 ) {
+    //     hemiLight.intensity -= 0.000203;
+    //     dirLight.intensity -= 0.000203;
+    //     hemiLight.color.setHSL( 28, 95, 46 ); 
+    //     dirLight.color.setHSL( 28, 95, 46 );
+    // }
 
-    if ( elevation > 180 ) {
-        hemiLight.intensity = 0;
-        dirLight.intensity = 0.04;
-    }
-    if ( elevation > 240 ) {
-        elevation = 0;
-        hemiLight.intensity += 0.25555;
-        dirLight.intensity += 0.55555;
+    // if ( elevation > 180 ) {
+    //     hemiLight.intensity = 0;
+    //     dirLight.intensity = 0.04;
+    // }
+    // if ( elevation > 240 ) {
+    //     elevation = 0;
+    //     hemiLight.intensity += 0.25555;
+    //     dirLight.intensity += 0.55555;
 
-       /*  uniforms[ 'turbidity' ].value += 0.988;
-        uniforms[ 'rayleigh' ].value += 0.43157;
-        uniforms[ 'mieCoefficient' ].value += 0.0011;
-        uniforms[ 'mieDirectionalG' ].value += 0.11; 
-        */
+    //    /*  uniforms[ 'turbidity' ].value += 0.988;
+    //     uniforms[ 'rayleigh' ].value += 0.43157;
+    //     uniforms[ 'mieCoefficient' ].value += 0.0011;
+    //     uniforms[ 'mieDirectionalG' ].value += 0.11; 
+    //     */
        
-    }
-    if ( elevation > 360) {
-        hemiLight.color.setHSL( 34, 100, 50 );
-        dirLight.color.setHSL( 34, 100, 50 );
-        hemiLight.intensity += 0.4199;
-        dirLight.intensity += 0.5199; 
-    }
+    // }
+    // if ( elevation > 360) {
+    //     hemiLight.color.setHSL( 34, 100, 50 );
+    //     dirLight.color.setHSL( 34, 100, 50 );
+    //     hemiLight.intensity += 0.4199;
+    //     dirLight.intensity += 0.5199; 
+    // }
 
     controls.update();
     render();
@@ -362,8 +328,7 @@ function mapa() {
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/mapa.obj', (root) => {
             root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-            randomX = - (Math.random() * 800), randomZ = Math.random() * 1400; // necesita alg spacing
-            root.position.set(randomX, 0, randomZ);
+            root.position.set(0, 0, 450);
             root.rotation.y = Math.PI / - 2;
             root.castShadow = true;
             root.receiveShadow = true;
