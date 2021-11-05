@@ -60,15 +60,18 @@ function houses() {
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/house_type0' + index + '.obj', (root) => {
+
+                let coordCasas = [{x:100, y:0, z:200}, {x:-200, y:0, z:300}, {x:-400, y:0, z:200}, {x:-500, y:0, z:200}, {x:-600, y:0, z:200}];
+
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                randomX = - (Math.random() * 800), randomZ = Math.random() * 1000; // necesita alg spacing
-                root.position.set(randomX, 0, randomZ);
-                root.rotation.y = Math.PI / - 2;
-                root.castShadow = true;
-                root.receiveShadow = true;
-                root.name = 'house' + index + '';
-                scene.add(root);
-                genGrafo("house");
+                // randomX = - (Math.random() * 800), randomZ = Math.random() * 1000; // necesita alg spacing
+                    root.position.set( coordCasas[index - 1].x , coordCasas[index - 1].y , coordCasas[index - 1].z );
+                    root.rotation.y = Math.PI / - 2;
+                    root.castShadow = true;
+                    root.receiveShadow = true;
+                    root.name = 'house' + index + '';
+                    scene.add(root);
+                    genGrafo("house");
             });
         });
     }
@@ -211,140 +214,7 @@ function onWindowResize() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
-function genGrafo(type) {
-    nodos.push({ id: ++lastNodo, type: type, weight: parseInt(Math.random() * 100 + 1), x: randomX, z: randomZ })
-    globalThis.nodos = nodos;
-    if ( lastNodo > 9 ) genCalles();
-    if ( type !== "house" ) return;
-    let nRandom = Math.floor(Math.random() * 5);
-    let l = nodos[lastNodo - 1];
-    let family = [];
-    switch (nRandom) { // Necesita condición (nRandom debe ser >= 2 al menos 1 vez)
-        case 0:
-            family.push({ type: "adult"});
-            break;
-        case 1:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            break;
-        case 2:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            break;
-        case 3:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
-            break;
-        case 4:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
-            break;
-        default:
-            break;
-    }
-    vincFamily.push({ house: l, family: family});
-    globalThis.family = family;
-    globalThis.vincFamily = vincFamily;  
-}
 
-
-function genCalles() {
-    var sortedNodos = [];
-    sortedNodos =  JSON.parse(JSON.stringify(nodos));
-    sortedNodos.sort(function(a, b){return a.z - b.z});
-    globalThis.sortedNodos = sortedNodos;
-    var lastSort = sortedNodos.length - 1;
-    var leastZ = sortedNodos[0].z
-    var leastX = sortedNodos[0].x
-    var mostZ = sortedNodos[lastSort].z
-    var lastRoad = 0;
-    var diffX = Math.abs(sortedNodos[lastSort].x) - Math.abs(sortedNodos[0].x);
-    globalThis.diffX = diffX;
-    
-    for (let index = 0; index < 2 * (Math.round( mostZ / 100 ) ); index++) {
-        
-        mtlLoader.load('./res/models/road_straight.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/road_straight.obj', (root) => {
-                root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                root.position.z = leastZ;
-                root.position.x = leastX + 70;
-                root.rotation.y = Math.PI / 2;
-
-                root.matrixAutoUpdate = false;
-                root.updateMatrix();
-                
-                scene.add(root);
-                
-                leastZ += 50;
-            })
-        })
-    }
-
-    leastZ -= 50;
-    lastRoad = sortedNodos[0].x + 70;
-
-    mtlLoader.load('./res/models/road_bend.mtl', (mtl) => {
-        mtl.preload();
-        const objLoader = new OBJLoader();
-        objLoader.setMaterials(mtl);
-        objLoader.load('./res/models/road_bend.obj', (root) => {
-            root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-            root.position.z = leastZ;
-            root.position.x = leastX + 70;
-
-            if ( Math.sign(diffX) > 0 ) root.rotation.y = Math.PI / - 2;
-            else if ( Math.abs(diffX) < 100 ) return;
-            else root.rotation.y = Math.PI ;
-
-            root.matrixAutoUpdate = false;
-            root.updateMatrix();
-            
-            scene.add(root);
-        })
-    })
-    
-    if ( Math.sign(diffX) > 0 ) leastX += 50;
-    else leastX -= 50;
-
-    for (let index = 0; index < 2 * (Math.ceil( Math.abs(diffX) / 100 )); index++) {
-
-        mtlLoader.load('./res/models/road_straight.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/road_straight.obj', (root) => {
-                root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                root.position.z = leastZ;
-                root.position.x = lastRoad;
-
-                root.matrixAutoUpdate = false;
-                root.updateMatrix();
-                
-                scene.add(root);
-                
-                if ( Math.sign(diffX) > 0 ) lastRoad -= 50;
-                if ( Math.sign(diffX) < 0 ) {
-                    lastRoad += 50;
-                    console.log("AAA");
-                } 
-            })
-        })
-    }
-    /*
-    sortedNodos.pop();
-    sortedNodos.shift();
-    genCalles();
-    */
-}
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
