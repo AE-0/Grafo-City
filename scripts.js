@@ -6,7 +6,6 @@ import { Sky } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/objects/
 
 let camera, scene, renderer, controls;
 let sky, sun;
-
 scene = new THREE.Scene();
 scene.background = new THREE.Color( 0x8cc7de );
 
@@ -50,6 +49,7 @@ mtlLoader.load('./res/models/house_type01.mtl', function() {null});
 houses();
 buildings();
 cars();
+mapa();
 //genCalles();
 
 function houses() {
@@ -155,7 +155,7 @@ sun = new THREE.Vector3();
 
 var elevation = -20;
 
-const uniforms = sky.material.uniforms;
+var uniforms = sky.material.uniforms;
 uniforms[ 'turbidity' ].value = 20;
 uniforms[ 'rayleigh' ].value = 0.425;
 uniforms[ 'mieCoefficient' ].value = 0.002;
@@ -197,7 +197,7 @@ scene.add( dirLightHelper );
 
 const ground = new THREE.Mesh(
     new THREE.BoxGeometry( 1750, 2000, 1000, 1 ),
-    new THREE.MeshStandardMaterial( { color: 0xa0adaf } )
+    new THREE.MeshStandardMaterial( { color: 0x233426  } )
 );
 ground.rotation.x = - Math.PI / 2;
 ground.position.set( - 500, - 500, 500)
@@ -214,6 +214,76 @@ function onWindowResize() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
+<<<<<<< Updated upstream
+=======
+function genGrafo(type) {
+    nodos.push({ id: ++lastNodo, type: type, weight: parseInt(Math.random() * 100 + 1), x: randomX, z: randomZ })
+    globalThis.nodos = nodos;
+   //if ( lastNodo > 9 ) genCalles();
+    if ( type !== "house" ) return;
+    let nRandom = Math.floor(Math.random() * 5);
+    let l = nodos[lastNodo - 1];
+    let family = [];
+    switch (nRandom) { // Necesita condición (nRandom debe ser >= 2 al menos 1 vez)
+        case 0:
+            family.push({ type: "adult"});
+            break;
+        case 1:
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            break;
+        case 2:
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            family.push({ type: "child"});
+            break;
+        case 3:
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            family.push({ type: "child"});
+            family.push({ type: "child"});
+            break;
+        case 4:
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            family.push({ type: "child"});
+            family.push({ type: "child"});
+            family.push({ type: "child"});
+            break;
+        default:
+            break;
+    }
+    vincFamily.push({ house: l, family: family});
+    globalThis.family = family;
+    globalThis.vincFamily = vincFamily;  
+}
+
+
+function genCalles() {
+    var sortedNodos = [];
+    sortedNodos =  JSON.parse(JSON.stringify(nodos));
+    sortedNodos.sort(function(a, b){return a.z - b.z});
+    globalThis.sortedNodos = sortedNodos;
+    var lastSort = sortedNodos.length - 1;
+    var leastZ = sortedNodos[0].z
+    var leastX = sortedNodos[0].x
+    var mostZ = sortedNodos[lastSort].z
+    var lastRoad = 0;
+    var diffX = Math.abs(sortedNodos[lastSort].x) - Math.abs(sortedNodos[0].x);
+    globalThis.diffX = diffX;
+    
+    for (let index = 0; index < 2 * (Math.round( mostZ / 100 ) ); index++) {
+        
+        mtlLoader.load('./res/models/road_straight.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+            objLoader.load('./res/models/road_straight.obj', (root) => {
+                root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
+                root.position.z = leastZ;
+                root.position.x = leastX + 70;
+                root.rotation.y = Math.PI / 2;
+>>>>>>> Stashed changes
 
 
 const raycaster = new THREE.Raycaster();
@@ -230,23 +300,42 @@ function animate() {
     sim.rotation.y += 0.02;
     sim2.rotation.y += 0.02;
     
-    /*
-    elevation += 0.5 
+    elevation += 0.05553
     const phi = THREE.MathUtils.degToRad( 90 - elevation );
     const theta = THREE.MathUtils.degToRad( 180 );
     sun.setFromSphericalCoords( 1, phi, theta );
     uniforms[ 'sunPosition' ].value.copy( sun );
 
+    if ( elevation > 90 ) {
+        hemiLight.intensity -= 0.000203;
+        dirLight.intensity -= 0.000203;
+        hemiLight.color.setHSL( 28, 95, 46 ); 
+        dirLight.color.setHSL( 28, 95, 46 );
+    }
+
     if ( elevation > 180 ) {
         hemiLight.intensity = 0;
         dirLight.intensity = 0.04;
     }
-    if ( elevation > 360 ) {
+    if ( elevation > 240 ) {
         elevation = 0;
-        hemiLight.intensity = 0.2;
-        dirLight.intensity = 0.5;
+        hemiLight.intensity += 0.25555;
+        dirLight.intensity += 0.55555;
+
+       /*  uniforms[ 'turbidity' ].value += 0.988;
+        uniforms[ 'rayleigh' ].value += 0.43157;
+        uniforms[ 'mieCoefficient' ].value += 0.0011;
+        uniforms[ 'mieDirectionalG' ].value += 0.11; 
+        */
+       
     }
-    */
+    if ( elevation > 360) {
+        hemiLight.color.setHSL( 34, 100, 50 );
+        dirLight.color.setHSL( 34, 100, 50 );
+        hemiLight.intensity += 0.4199;
+        dirLight.intensity += 0.5199; 
+    }
+
     controls.update();
     render();
 }
@@ -264,5 +353,25 @@ function render() {
     renderer.render( scene, camera );
 
 }
+
+function mapa() {
+
+    mtlLoader.load('./res/models/mapa.mtl', (mtl) => {
+        mtl.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(mtl);
+        objLoader.load('./res/models/mapa.obj', (root) => {
+            root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
+            randomX = - (Math.random() * 800), randomZ = Math.random() * 1400; // necesita alg spacing
+            root.position.set(randomX, 0, randomZ);
+            root.rotation.y = Math.PI / - 2;
+            root.castShadow = true;
+            root.receiveShadow = true;
+            scene.add(root);
+        });
+    });
+
+}
+
 
 animate();
