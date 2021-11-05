@@ -49,6 +49,7 @@ mtlLoader.load('./res/models/house_type01.mtl', function() {null});
 houses();
 buildings();
 cars();
+mapa();
 //genCalles();
 
 function houses() {
@@ -213,7 +214,7 @@ function onWindowResize() {
 function genGrafo(type) {
     nodos.push({ id: ++lastNodo, type: type, weight: parseInt(Math.random() * 100 + 1), x: randomX, z: randomZ })
     globalThis.nodos = nodos;
-    if ( lastNodo > 9 ) genCalles();
+   //if ( lastNodo > 9 ) genCalles();
     if ( type !== "house" ) return;
     let nRandom = Math.floor(Math.random() * 5);
     let l = nodos[lastNodo - 1];
@@ -412,5 +413,25 @@ function render() {
     renderer.render( scene, camera );
 
 }
+
+function mapa() {
+
+    mtlLoader.load('./res/models/mapa.mtl', (mtl) => {
+        mtl.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(mtl);
+        objLoader.load('./res/models/mapa.obj', (root) => {
+            root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
+            randomX = - (Math.random() * 800), randomZ = Math.random() * 1400; // necesita alg spacing
+            root.position.set(randomX, 0, randomZ);
+            root.rotation.y = Math.PI / - 2;
+            root.castShadow = true;
+            root.receiveShadow = true;
+            scene.add(root);
+        });
+    });
+
+}
+
 
 animate();
