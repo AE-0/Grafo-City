@@ -326,7 +326,7 @@ function mapa() {
         mtl.preload();
         const objLoader = new OBJLoader();
         objLoader.setMaterials(mtl);
-        objLoader.load('./res/models/mapa.obj', (root) => {
+        objLoader.load('./res/models/map3.obj', (root) => {
             root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
             root.position.set(0, 0, 450);
             root.rotation.y = Math.PI / - 2;
@@ -337,6 +337,7 @@ function mapa() {
     });
 
 }
+
 
 
 animate();
