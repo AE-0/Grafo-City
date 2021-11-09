@@ -60,6 +60,7 @@ function houses() {
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                     root.position.set( coord[index - 1].x , coord[index - 1].y , coord[index - 1].z );
                     if(coord[index-1].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
+                    else if (coord[index-1].x == -580)  root.rotation.y= 3*(Math.PI) /  -2;
                     else root.rotation.y = Math.PI / - 2;
                     root.castShadow = true;
                     root.receiveShadow = true;
@@ -129,11 +130,12 @@ function cars() {
                         root.rotation.y = Math.PI / -2;
                         break;
                     case 8:
-                        randomX = nodos[5].x - 10, randomZ = nodos[5].z + 20; // firetruck
+                        randomX = nodos[7].x - 10, randomZ = nodos[7].z + 20; // firetruck
                         root.rotation.y = Math.PI / -2;
                         break;
                     default:
-                        randomX = Math.random() * 1000 - 500, randomZ = Math.random() * 1000 - 500; // necesita relative coords
+                        randomX = -330, randomZ = 100;
+                        root.rotation.y = Math.PI / -2;
                         break;
                 }
                 root.position.set(randomX, 0, randomZ);
@@ -145,6 +147,35 @@ function cars() {
         });
     }
 }
+
+let controlPoints= [
+    {x:35, y:0, z:90}, 
+    {x:15, y:0, z:110}, 
+    {x:35, y:0, z:440}, 
+    {x:35, y:0, z:460}, 
+    {x:20, y:0, z:440}, 
+    {x:20, y:0, z:460}, 
+    {x:35, y:0, z:800}, 
+    {x:15, y:0, z:780}, 
+    
+    {x:-330, y:0, z:90}, 
+    {x:-310, y:0, z:90}, 
+    {x:-330, y:0, z:110}, 
+    {x:-310, y:0, z:110},
+    {x:-330, y:0, z:440}, 
+    {x:-310, y:0, z:440}, 
+    {x:-330, y:0, z:460}, 
+    {x:-310, y:0, z:460},
+    {x:-310, y:0, z:800}, 
+    {x:-330, y:0, z:800}, 
+    {x:-310, y:0, z:780}, 
+    {x:-330, y:0, z:780},
+
+    {x:-680, y:0, z:90}, 
+    {x:-660, y:0, z:110}, 
+    {x:-680, y:0, z:800}, 
+    {x:-660, y:0, z:780}
+];
 
 // sky
 
@@ -198,7 +229,7 @@ scene.add( dirLightHelper );
 
 const ground = new THREE.Mesh(
     new THREE.BoxGeometry( 1750, 2000, 1000, 1 ),
-    new THREE.MeshStandardMaterial( { color: 0x233426  } )
+    new THREE.MeshStandardMaterial( { color: 0x35682d  } )
 );
 ground.rotation.x = - Math.PI / 2;
 ground.position.set( - 500, - 500, 500)
@@ -332,7 +363,7 @@ function mapa() {
         mtl.preload();
         const objLoader = new OBJLoader();
         objLoader.setMaterials(mtl);
-        objLoader.load('./res/models/map2.obj', (root) => {
+        objLoader.load('./res/models/mapa.obj', (root) => {
             root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
             root.position.set(-320, 0, 450);
             root.rotation.y = 0;
