@@ -44,15 +44,13 @@ const nodos = [], calles = [], vincFamily = [];
 const mtlLoader = new MTLLoader();
 const objLoader = new OBJLoader();
 
-mtlLoader.load('./res/models/house_type01.mtl', function() {null});
-
 houses();
 buildings();
 cars();
 mapa();
-let coord = [{x:-50, y:0, z:200}, {x:-60, y:0, z:350}, {x:-500, y:0, z:300}, {x:-50, y:0, z:290}, {x:-500, y:0, z:200}, {x:-50, y:0, z:700}, {x:-60, y:0, z:850}, {x:-500, y:0, z:700}, {x:-500, y:0, z:850}, {x:-800, y:0, z:900}];
+let coord = [{x:-50, y:0, z:240}, {x:-60, y:0, z:340}, {x:-210, y:0, z:340}, {x:-210, y:0, z:650}, {x:-210, y:0, z:210}, {x:-580, y:0, z:230}, {x:-580, y:0, z:700}, {x:-50, y:0, z:700}, {x:-60, y:0, z:550}, {x:-580, y:0, z:350}, {x:-580, y:0, z:550}, {x:-210, y:0, z:570}];
 function houses() {
-    let n = 5;
+    let n = 7;
     for (let index = 1; index <= n; index++) {
         mtlLoader.load('./res/models/house_type0' + index + '.mtl', (mtl) => {
             mtl.preload();
@@ -61,7 +59,8 @@ function houses() {
             objLoader.load('./res/models/house_type0' + index + '.obj', (root) => {
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                     root.position.set( coord[index - 1].x , coord[index - 1].y , coord[index - 1].z );
-                    root.rotation.y = Math.PI / - 2;
+                    if(coord[index-1].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
+                    else root.rotation.y = Math.PI / - 2;
                     root.castShadow = true;
                     root.receiveShadow = true;
                     root.name = 'house' + index + '';
@@ -82,13 +81,14 @@ function buildings() {
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/large_building0' + index + '.obj', (root) => {
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                root.position.set( coord[index + 4].x , coord[index + 4].y , coord[index + 4].z );
-                root.rotation.y = Math.PI / - 2;
+                root.position.set( coord[index + 6].x , coord[index + 6].y , coord[index + 6].z );
+                if(coord[index-1].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
+                else root.rotation.y = Math.PI / - 2;
                 root.castShadow = true;
                 root.receiveShadow = true;
                 root.name = buildingsArray[index - 1];
                 scene.add(root);
-                genGrafo(buildingsArray[index - 1], index + 4);
+                genGrafo(buildingsArray[index - 1], index + 6);
             });
         });
     }
@@ -106,31 +106,37 @@ function cars() {
                 switch (index) {
                     case 1:
                         randomX = nodos[0].x - 20, randomZ = nodos[0].z + 10;
+                        root.rotation.y = Math.PI / 2;
                         break;
                     case 2:
                         randomX = nodos[1].x + 10, randomZ = nodos[1].z - 20;
+                        root.rotation.y = Math.PI / 2;
                         break;
                     case 3:
                         randomX = nodos[2].x, randomZ = nodos[2].z - 50;
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 4:
-                        randomX = nodos[3].x + 15, randomZ = nodos[3].z - 52.5;
+                        randomX = nodos[3].x + 15, randomZ = nodos[3].z - 10;
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 5:
-                        randomX = nodos[4].x, randomZ = nodos[4].z - 20;
+                        randomX = nodos[4].x - 10, randomZ = nodos[4].z + 20;
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 7:
-                        randomX = nodos[9].x + 20, randomZ = nodos[9].z - 55; // ambulance
+                        randomX = nodos[11].x - 20, randomZ = nodos[11].z + 55; // ambulance
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 8:
-                        randomX = nodos[5].x, randomZ = nodos[5].z - 20; // firetruck
+                        randomX = nodos[5].x - 10, randomZ = nodos[5].z + 20; // firetruck
+                        root.rotation.y = Math.PI / -2;
                         break;
                     default:
                         randomX = Math.random() * 1000 - 500, randomZ = Math.random() * 1000 - 500; // necesita relative coords
                         break;
                 }
                 root.position.set(randomX, 0, randomZ);
-                root.rotation.y = Math.PI / 2;
                 root.castShadow = true;
                 root.receiveShadow = true;
                 root.name = carsArray[index - 1];
@@ -328,8 +334,8 @@ function mapa() {
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/map2.obj', (root) => {
             root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-            root.position.set(0, 0, 450);
-            root.rotation.y = Math.PI / - 2;
+            root.position.set(-320, 0, 450);
+            root.rotation.y = 0;
             root.castShadow = true;
             root.receiveShadow = true;
             scene.add(root);
