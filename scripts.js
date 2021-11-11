@@ -243,7 +243,7 @@ function mountains(){
             });
         });
     }
-    
+
     for (let index = 0; index < 10; index++) {
         mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
             mtl.preload();
@@ -259,7 +259,6 @@ function mountains(){
             });
         });
     }
-
     for (let index = 0; index < 10; index++) {
         mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
             mtl.preload();
@@ -275,7 +274,6 @@ function mountains(){
             });
         });
     }
-
     for (let index = 0; index < 10; index++) {
         mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
             mtl.preload();
