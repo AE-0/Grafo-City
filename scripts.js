@@ -1,8 +1,9 @@
 import * as THREE from "https://cdn.skypack.dev/three@0.133.1";
-import { MapControls } from "https://cdn.skypack.dev/three@0.133.1/examples/jsm/controls/OrbitControls.js";
+import { OrbitControls } from "https://cdn.skypack.dev/three@0.133.1/examples/jsm/controls/OrbitControls.js";
 import { MTLLoader } from "https://cdn.skypack.dev/three@0.133.1/examples/jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "https://cdn.skypack.dev/three@0.133.1/examples/jsm/loaders/OBJLoader.js";
 import { Sky } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/objects/Sky.js';
+
 
 let camera, scene, renderer, controls;
 let sky, sun;
@@ -20,13 +21,38 @@ document.body.appendChild( renderer.domElement );
 camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2500);
 camera.position.set( 250, 150, - 150 );
 
-controls = new MapControls( camera, renderer.domElement );
+controls = new OrbitControls( camera, renderer.domElement );
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
 controls.minDistance = 300;
 controls.maxDistance = 650;
 controls.maxPolarAngle = (Math.PI / 2) - 0.001;
+controls.rotateSpeed = 0.5;
+controls.mouseButtons={ 
+    LEFT : null,
+    MIDDLE : THREE.MOUSE.PAN,
+    RIGHT : THREE.MOUSE.ROTATE
+}
+var minPan = new THREE.Vector3( -800 , 0 , 0 );
+    var maxPan = new THREE.Vector3( 100, 0 , 900 );
+    var _v = new THREE.Vector3();
+    
+controls.addEventListener("change", function() {
+    _v.copy(controls.target);
+     controls.target.clamp(minPan, maxPan);
+    _v.sub(controls.target);
+    camera.position.sub(_v);
+})
+
+
+
+
+
+// controls.addEventListener('change', (event) => {
+//     controls.target.x = -320;
+//     controls.target.z = 450;
+// });
 
 const simGeometry = new THREE.ConeGeometry( 5, 10, 6 );
 const simMaterial = new THREE.MeshStandardMaterial( { color: 0x17DD25, flatShading: true } );
@@ -35,6 +61,13 @@ const sim2 = new THREE.Mesh( simGeometry, simMaterial );
 
 sim.position.set(0, 0, 0);
 scene.add(sim);
+sim.castShadow = true;
+sim2.castShadow = true;
+sim.position.set(0, 15, 0);
+sim2.position.set(0, 5, 0);
+sim2.scale.y = -1;
+scene.add(sim);
+scene.add(sim2);
 
 const geomCalle = new THREE.BoxGeometry(50, 2, 100);
 const materialCalle = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
@@ -44,11 +77,32 @@ const nodos = [], calles = [], vincFamily = [];
 const mtlLoader = new MTLLoader();
 const objLoader = new OBJLoader();
 
+Models();
 houses();
 buildings();
 cars();
 mapa();
-let coord = [{x:-50, y:0, z:240}, {x:-60, y:0, z:340}, {x:-210, y:0, z:340}, {x:-210, y:0, z:650}, {x:-210, y:0, z:210}, {x:-580, y:0, z:230}, {x:-580, y:0, z:700}, {x:-50, y:0, z:700}, {x:-60, y:0, z:550}, {x:-580, y:0, z:350}, {x:-580, y:0, z:550}, {x:-210, y:0, z:570}];
+mountains();
+
+let coord = [
+    {x:-50, y:0, z:240}, 
+    {x:-60, y:0, z:340}, 
+    {x:-210, y:0, z:340}, 
+    {x:-210, y:0, z:650}, 
+    {x:-210, y:0, z:210}, 
+    {x:-580, y:0, z:230}, 
+    {x:-580, y:0, z:700}, 
+    {x:-60, y:0, z:690}, 
+    {x:-60, y:0, z:550}, 
+    {x:-580, y:0, z:350}, 
+    {x:-580, y:0, z:550}, 
+    {x:-210, y:0, z:570},
+    {x:-580, y:0, z:450}
+];
+
+let newcar = null;
+let newcar2 = null;
+
 function houses() {
     let n = 7;
     for (let index = 1; index <= n; index++) {
@@ -147,6 +201,98 @@ function cars() {
         });
     }
 }
+
+function Models(){
+    mtlLoader.load('./res/models/police.mtl', (mtl) => {
+        mtl.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(mtl);
+        objLoader.load('./res/models/police.obj', (root) => {
+            newcar = root;
+            newcar.position.set(40,0,110);
+            newcar.scale.set(15,15,15);
+            scene.add(newcar);
+        });
+    });
+
+    mtlLoader.load('./res/models/firetruck.mtl', (mtl) => {
+        mtl.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(mtl);
+        objLoader.load('./res/models/firetruck.obj', (root) => {
+            newcar2 = root;
+            newcar2.position.set(20,0,110);
+            newcar2.scale.set(15,15,15);
+            scene.add(newcar2);
+        });
+    });
+}
+
+function mountains(){
+    for (let index = 0; index < 10; index++) {
+        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+            objLoader.load('./res/models/mountain.obj', (root) => {
+                root.position.set(-1100 , -0.5 , -400 + (index*220))
+                root.castShadow = true;
+                root.receiveShadow = true;
+                root.scale.set(50, 50, 50);
+                scene.add(root);
+            });
+        });
+    }
+    
+    for (let index = 0; index < 10; index++) {
+        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+            objLoader.load('./res/models/mountain.obj', (root) => {
+                root.position.set(400 , -0.5 , -400 + (index*220))
+                root.castShadow = true;
+                root.rotation.y= 3*Math.PI / 3;
+                root.receiveShadow = true;
+                root.scale.set(50, 50, 50);
+                scene.add(root);
+            });
+        });
+    }
+
+    for (let index = 0; index < 10; index++) {
+        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+            objLoader.load('./res/models/mountain.obj', (root) => {
+                root.position.set(500 - (index*220) , -0.5 , -300 )
+                root.castShadow = true;
+                root.rotation.y= 3*Math.PI / 2;
+                root.receiveShadow = true;
+                root.scale.set(50, 50, 50);
+                scene.add(root);
+            });
+        });
+    }
+
+    for (let index = 0; index < 10; index++) {
+        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
+            mtl.preload();
+            const objLoader = new OBJLoader();
+            objLoader.setMaterials(mtl);
+            objLoader.load('./res/models/mountain.obj', (root) => {
+                root.position.set(500 - (index*220), -0.5 , 1200)
+                root.castShadow = true;
+                root.rotation.y= Math.PI / 2;
+                root.receiveShadow = true;
+                root.scale.set(50, 50, 50);
+                scene.add(root);
+            });
+        });
+    }       
+}
+
 
 let controlPoints= [
     {x:35, y:0, z:90}, 
@@ -302,42 +448,56 @@ function animate() {
 
     sim.rotation.y += 0.02;
     sim2.rotation.y += 0.02;
+
+
+    if(newcar){
+        if (newcar.position.z >= 807){
+            newcar.position.x -= 0.6;
+            newcar.rotation.y = Math.PI / -2;
+        }
+        else 
+        newcar.position.z += 0.6;
+        
+        newcar2.position.z += 0.8;
+    }
     
-    // elevation += 0.05553
-    // const phi = THREE.MathUtils.degToRad( 90 - elevation );
-    // const theta = THREE.MathUtils.degToRad( 180 );
-    // sun.setFromSphericalCoords( 1, phi, theta );
-    // uniforms[ 'sunPosition' ].value.copy( sun );
 
-    // if ( elevation > 90 ) {
-    //     hemiLight.intensity -= 0.000203;
-    //     dirLight.intensity -= 0.000203;
-    //     hemiLight.color.setHSL( 28, 95, 46 ); 
-    //     dirLight.color.setHSL( 28, 95, 46 );
-    // }
+    
+    elevation += 0.05553
+    const phi = THREE.MathUtils.degToRad( 90 - elevation );
+    const theta = THREE.MathUtils.degToRad( 180 );
+    sun.setFromSphericalCoords( 1, phi, theta );
+    uniforms[ 'sunPosition' ].value.copy( sun );
 
-    // if ( elevation > 180 ) {
-    //     hemiLight.intensity = 0;
-    //     dirLight.intensity = 0.04;
-    // }
-    // if ( elevation > 240 ) {
-    //     elevation = 0;
-    //     hemiLight.intensity += 0.25555;
-    //     dirLight.intensity += 0.55555;
+    if ( elevation > 90 ) {
+        hemiLight.intensity -= 0.000203;
+        dirLight.intensity -= 0.000203;
+        hemiLight.color.setHSL( 28, 95, 46 ); 
+        dirLight.color.setHSL( 28, 95, 46 );
+    }
 
-    //    /*  uniforms[ 'turbidity' ].value += 0.988;
-    //     uniforms[ 'rayleigh' ].value += 0.43157;
-    //     uniforms[ 'mieCoefficient' ].value += 0.0011;
-    //     uniforms[ 'mieDirectionalG' ].value += 0.11; 
-    //     */
+    if ( elevation > 180 ) {
+        hemiLight.intensity = 0;
+        dirLight.intensity = 0.04;
+    }
+    if ( elevation > 240 ) {
+        elevation = 0;
+        hemiLight.intensity += 0.25555;
+        dirLight.intensity += 0.55555;
+
+       /*  uniforms[ 'turbidity' ].value += 0.988;
+        uniforms[ 'rayleigh' ].value += 0.43157;
+        uniforms[ 'mieCoefficient' ].value += 0.0011;
+        uniforms[ 'mieDirectionalG' ].value += 0.11; 
+        */
        
-    // }
-    // if ( elevation > 360) {
-    //     hemiLight.color.setHSL( 34, 100, 50 );
-    //     dirLight.color.setHSL( 34, 100, 50 );
-    //     hemiLight.intensity += 0.4199;
-    //     dirLight.intensity += 0.5199; 
-    // }
+    }
+    if ( elevation > 360) {
+        hemiLight.color.setHSL( 34, 100, 50 );
+        dirLight.color.setHSL( 34, 100, 50 );
+        hemiLight.intensity += 0.4199;
+        dirLight.intensity += 0.5199; 
+    }
 
     controls.update();
     render();
