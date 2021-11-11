@@ -3,7 +3,11 @@ import { OrbitControls } from "https://cdn.skypack.dev/three@0.133.1/examples/js
 import { MTLLoader } from "https://cdn.skypack.dev/three@0.133.1/examples/jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "https://cdn.skypack.dev/three@0.133.1/examples/jsm/loaders/OBJLoader.js";
 import { Sky } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/objects/Sky.js';
-
+import { OutlinePass } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/postprocessing/OutlinePass.js';
+import { EffectComposer } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/postprocessing/EffectComposer.js';
+import { FXAAShader } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/shaders/FXAAShader.js';
+import { ShaderPass } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/postprocessing/ShaderPass.js';
+import { RenderPass } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/postprocessing/RenderPass.js';
 
 let camera, scene, renderer, controls;
 let sky, sun;
@@ -16,6 +20,7 @@ renderer.setSize( window.innerWidth, window.innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.5;
+renderer.shadowMap.enabled = true;
 document.body.appendChild( renderer.domElement );
 
 camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2500);
@@ -29,7 +34,7 @@ controls.minDistance = 300;
 controls.maxDistance = 650;
 controls.maxPolarAngle = (Math.PI / 2) - 0.001;
 controls.rotateSpeed = 0.5;
-controls.mouseButtons={ 
+controls.mouseButtons = { 
     LEFT : null,
     MIDDLE : THREE.MOUSE.PAN,
     RIGHT : THREE.MOUSE.ROTATE
@@ -44,10 +49,6 @@ controls.addEventListener("change", function() {
     _v.sub(controls.target);
     camera.position.sub(_v);
 })
-
-
-
-
 
 // controls.addEventListener('change', (event) => {
 //     controls.target.x = -320;
@@ -68,9 +69,6 @@ sim2.position.set(0, 5, 0);
 sim2.scale.y = -1;
 scene.add(sim);
 scene.add(sim2);
-
-const geomCalle = new THREE.BoxGeometry(50, 2, 100);
-const materialCalle = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
 
 var randomX, randomZ, lastNodo = 0;
 const nodos = [], calles = [], vincFamily = [];
@@ -113,11 +111,9 @@ function houses() {
             objLoader.load('./res/models/house_type0' + index + '.obj', (root) => {
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                     root.position.set( coord[index - 1].x , coord[index - 1].y , coord[index - 1].z );
-                    if(coord[index-1].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
-                    else if (coord[index-1].x == -580)  root.rotation.y= 3*(Math.PI) /  -2;
+                    if(coord[index - 1].x == -210)  root.rotation.y= 3 * (Math.PI) /  -2;
+                    else if (coord[index-1].x == -580)  root.rotation.y= 3 * (Math.PI) /  -2;
                     else root.rotation.y = Math.PI / - 2;
-                    root.castShadow = true;
-                    root.receiveShadow = true;
                     root.name = 'house' + index + '';
                     scene.add(root);
                     genGrafo("house", index - 1);
@@ -139,8 +135,6 @@ function buildings() {
                 root.position.set( coord[index + 6].x , coord[index + 6].y , coord[index + 6].z );
                 if(coord[index-1].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
                 else root.rotation.y = Math.PI / - 2;
-                root.castShadow = true;
-                root.receiveShadow = true;
                 root.name = buildingsArray[index - 1];
                 scene.add(root);
                 genGrafo(buildingsArray[index - 1], index + 6);
@@ -205,6 +199,7 @@ function cars() {
 function Models(){
     mtlLoader.load('./res/models/police.mtl', (mtl) => {
         mtl.preload();
+        mtl.materials.carTire.color = {r: 1, g: 0.227451, b: 0.3019608};
         const objLoader = new OBJLoader();
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/police.obj', (root) => {
@@ -228,67 +223,64 @@ function Models(){
     });
 }
 
-function mountains(){
-    for (let index = 0; index < 10; index++) {
-        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/mountain.obj', (root) => {
-                root.position.set(-1100 , -0.5 , -400 + (index*220))
-                root.castShadow = true;
-                root.receiveShadow = true;
-                root.scale.set(50, 50, 50);
-                scene.add(root);
-            });
-        });
-    }
+function mapa() {
 
-    for (let index = 0; index < 10; index++) {
-        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/mountain.obj', (root) => {
-                root.position.set(400 , -0.5 , -400 + (index*220))
-                root.castShadow = true;
-                root.rotation.y= 3*Math.PI / 3;
-                root.receiveShadow = true;
-                root.scale.set(50, 50, 50);
-                scene.add(root);
-            });
+    mtlLoader.load('./res/models/mapa.mtl', (mtl) => {
+        mtl.preload();
+        const objLoader = new OBJLoader();
+        Object.keys(mtl.materials).forEach( function(key) { 
+            mtl.materials[key].flatShading = true;
+            mtl.materials[key].side = 2;
         });
+        objLoader.setMaterials(mtl);
+        objLoader.load('./res/models/mapa.obj', (root) => {
+            root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
+            root.position.set(-320, 0, 450);
+            root.rotation.y = 0;
+            root.castShadow = true;
+            root.receiveShadow = true;
+            scene.add(root);
+        });
+    });
+
+}
+
+function mountains() {
+    for (let jndex = 0; jndex < 4; jndex++) {
+        for (let index = 0; index < 10; index++) {
+            mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
+                mtl.preload();
+                mtl.materials.ground.color =  {r: 0.20784313725490197, g: 0.40784313725490196, b: 0.17647058823529413}
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(mtl);
+                objLoader.load('./res/models/mountain.obj', (root) => {
+                    switch (jndex) {
+                        case 0:
+                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
+                            break;
+                        case 1:
+                            root.position.set( 400 , -0.5 , -400 + ( index * 220 ))
+                            root.rotation.y = 3 * Math.PI / 3;
+                            break;
+                        case 2:
+                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
+                            root.position.set( 500 - (index*220) , -0.5 , -300 )
+                            root.rotation.y = 3 * Math.PI / 2;
+                            break;
+                        case 3:
+                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
+                            root.position.set( 500 - ( index * 220 ), -0.5 , 1200)
+                            root.rotation.y = Math.PI / 2;
+                            break;
+                        default:
+                            break;
+                    }
+                    root.scale.set(50, 50, 50);
+                    scene.add(root);
+                });
+            });
+        }
     }
-    for (let index = 0; index < 10; index++) {
-        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/mountain.obj', (root) => {
-                root.position.set(500 - (index*220) , -0.5 , -300 )
-                root.castShadow = true;
-                root.rotation.y= 3*Math.PI / 2;
-                root.receiveShadow = true;
-                root.scale.set(50, 50, 50);
-                scene.add(root);
-            });
-        });
-    }
-    for (let index = 0; index < 10; index++) {
-        mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
-            mtl.preload();
-            const objLoader = new OBJLoader();
-            objLoader.setMaterials(mtl);
-            objLoader.load('./res/models/mountain.obj', (root) => {
-                root.position.set(500 - (index*220), -0.5 , 1200)
-                root.castShadow = true;
-                root.rotation.y= Math.PI / 2;
-                root.receiveShadow = true;
-                root.scale.set(50, 50, 50);
-                scene.add(root);
-            });
-        });
-    }       
 }
 
 
@@ -372,16 +364,16 @@ const dirLightHelper = new THREE.DirectionalLightHelper( dirLight, 10 );
 scene.add( dirLightHelper );
 
 const ground = new THREE.Mesh(
-    new THREE.BoxGeometry( 1750, 2000, 1000, 1 ),
+    new THREE.BoxGeometry( 1750, 2000, 10, 1 ),
     new THREE.MeshStandardMaterial( { color: 0x35682d  } )
 );
 ground.rotation.x = - Math.PI / 2;
-ground.position.set( - 500, - 500, 500)
+ground.position.set( - 500, - 5, 500)
 ground.receiveShadow = true;
 scene.add( ground );
 
 window.addEventListener( 'resize', onWindowResize );
-window.addEventListener( 'mousedown', onMouseDown, false );
+window.addEventListener( 'pointerdown', onPointerDown );
 window.requestAnimationFrame(render);
 
 function onWindowResize() {
@@ -434,11 +426,110 @@ function genGrafo(type , index) {
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+let selectedObjects = [], composer, outlinePass, effectFXAA;
+composer = new EffectComposer( renderer );
 
+const renderPass = new RenderPass( scene, camera );
+composer.addPass( renderPass );
 
-function onMouseDown(event) {
+effectFXAA = new ShaderPass( FXAAShader );
+effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+composer.addPass( effectFXAA );
+
+outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+composer.addPass( outlinePass );
+
+outlinePass.edgeStrength = 3;
+outlinePass.edgeGlow = 0;
+outlinePass.edgeThickness = 1;
+outlinePass.pulsePeriod = 0;
+outlinePass.rotate = false;
+outlinePass.usePatternTexture = false;
+outlinePass.visibleEdgeColor.set( '#ffffff' );
+outlinePass.hiddenEdgeColor.set( '#190a05' );
+
+renderer.domElement.addEventListener( 'pointermove', onPointerMove );
+
+function onPointerMove( event ) {
+
+    if ( event.isPrimary === false ) return;
+
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    checkIntersection();
+
+}
+
+function addSelectedObject( object ) {
+
+    selectedObjects = [];
+    selectedObjects.push( object );
+
+}
+
+function checkIntersection() {
+
+    raycaster.setFromCamera( mouse, camera );
+
+    const intersects = raycaster.intersectObject( scene, true );
+
+    if ( intersects[0].object.name.startsWith('house')  ) {
+
+        const selectedObject = intersects[ 0 ].object;
+        addSelectedObject( selectedObject );
+        outlinePass.selectedObjects = selectedObjects;
+
+    } else outlinePass.selectedObjects = [];
+
+}
+
+function onPointerDown(event) {
+
+    if (event.button != 0) return;
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera( mouse, camera );
+    const intersects = raycaster.intersectObjects( scene.children, true );
+    if ( intersects[0].object.name.startsWith('house') ) {
+
+        const object = intersects[0].object;
+        console.log(object)
+
+        let familyModal = new WinBox(object.name, {
+            border: 0,
+            width: 400,
+            height: 600,
+            x: "70%",
+            y: "bottom",
+            class: [
+                "no-min",
+                "no-max",
+                "no-full",
+                "no-resize",
+            ],
+        });
+        
+        let houseSelected = object.name[object.name.length - 1] - 1;
+        let stringHTML = '<div class="family">';
+        console.log(houseSelected , vincFamily[houseSelected].family.length);
+        if (vincFamily[houseSelected].family.length > 2 ) {
+            for (let index = 0; index < 2; index++) {
+                stringHTML += '<img src="./res/img/man0' + Math.floor(Math.random() * 2 + 1) + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+            }
+            for (let index = 0; index < vincFamily[houseSelected].family.length - 2; index++) {
+                stringHTML += '<img src="./res/img/girl0' + Math.floor(Math.random() * 2 + 1)  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+            }
+        }
+        else {
+            for (let index = 0; index < vincFamily[houseSelected].family.length; index++) {
+                stringHTML += '<img src="./res/img/man0' + Math.floor(Math.random() * 2 + 1)  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+            }
+        }
+        stringHTML += '</div>';
+        familyModal.body.innerHTML = stringHTML;
+    }
 }
 
 function animate() {
@@ -498,7 +589,8 @@ function animate() {
     }
 
     controls.update();
-    render();
+    //render();
+    composer.render();
 }
 
 function render() {
@@ -514,25 +606,5 @@ function render() {
     renderer.render( scene, camera );
 
 }
-
-function mapa() {
-
-    mtlLoader.load('./res/models/mapa.mtl', (mtl) => {
-        mtl.preload();
-        const objLoader = new OBJLoader();
-        objLoader.setMaterials(mtl);
-        objLoader.load('./res/models/mapa.obj', (root) => {
-            root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-            root.position.set(-320, 0, 450);
-            root.rotation.y = 0;
-            root.castShadow = true;
-            root.receiveShadow = true;
-            scene.add(root);
-        });
-    });
-
-}
-
-
 
 animate();
