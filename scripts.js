@@ -250,26 +250,26 @@ function mountains() {
         for (let index = 0; index < 10; index++) {
             mtlLoader.load('./res/models/mountain.mtl', (mtl) => {
                 mtl.preload();
-                mtl.materials.ground.color =  {r: 0.20784313725490197, g: 0.40784313725490196, b: 0.17647058823529413}
+                mtl.materials.ground.color =  {r: 0.20784313725490197, g: 0.40784313725490196, b: 0.17647058823529413};
                 const objLoader = new OBJLoader();
                 objLoader.setMaterials(mtl);
                 objLoader.load('./res/models/mountain.obj', (root) => {
                     switch (jndex) {
                         case 0:
-                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
+                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ));
                             break;
                         case 1:
-                            root.position.set( 400 , -0.5 , -400 + ( index * 220 ))
+                            root.position.set( 400 , -0.5 , -400 + ( index * 220 ));
                             root.rotation.y = 3 * Math.PI / 3;
                             break;
                         case 2:
-                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
-                            root.position.set( 500 - (index*220) , -0.5 , -300 )
+                            root.position.set( -1100 , -0.5 , -400 + ( index * 220 ));
+                            root.position.set( 500 - (index*220) , -0.5 , -300 );
                             root.rotation.y = 3 * Math.PI / 2;
                             break;
                         case 3:
                             root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
-                            root.position.set( 500 - ( index * 220 ), -0.5 , 1200)
+                            root.position.set( 500 - ( index * 220 ), -0.5 , 1200);
                             root.rotation.y = Math.PI / 2;
                             break;
                         default:
@@ -368,7 +368,7 @@ const ground = new THREE.Mesh(
     new THREE.MeshStandardMaterial( { color: 0x35682d  } )
 );
 ground.rotation.x = - Math.PI / 2;
-ground.position.set( - 500, - 5, 500)
+ground.position.set( - 500, - 5, 500);
 ground.receiveShadow = true;
 scene.add( ground );
 
@@ -513,22 +513,40 @@ function onPointerDown(event) {
         
         let houseSelected = object.name[object.name.length - 1] - 1;
         let stringHTML = '<div class="family">';
-        console.log(houseSelected , vincFamily[houseSelected].family.length);
+        //console.log(houseSelected , vincFamily[houseSelected].family.length);
         if (vincFamily[houseSelected].family.length > 2 ) {
             for (let index = 0; index < 2; index++) {
-                stringHTML += '<img src="./res/img/man0' + Math.floor(Math.random() * 2 + 1) + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
             for (let index = 0; index < vincFamily[houseSelected].family.length - 2; index++) {
-                stringHTML += '<img src="./res/img/girl0' + Math.floor(Math.random() * 2 + 1)  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + familyInfo('genderChild') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
         }
         else {
             for (let index = 0; index < vincFamily[houseSelected].family.length; index++) {
-                stringHTML += '<img src="./res/img/man0' + Math.floor(Math.random() * 2 + 1)  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG') + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
         }
         stringHTML += '</div>';
         familyModal.body.innerHTML = stringHTML;
+    }
+}
+
+function familyInfo(type) {
+
+    let genderAdult, genderChild, nRNG;
+
+    switch (type) {
+        case 'genderAdult':
+            if ( (Math.floor(Math.random() * 2)) ) genderAdult = "man0";
+            else  genderAdult = "woman0";
+            return genderAdult;
+        case 'genderChild':
+            if ( (Math.floor(Math.random() * 2)) ) genderChild = "boy0";
+            else  genderChild = "girl0";
+            return genderChild;
+        case 'nRNG':
+            return nRNG = Math.floor(Math.random() * 2 + 1)
     }
 }
 
