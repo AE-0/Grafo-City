@@ -625,4 +625,31 @@ function render() {
 
 }
 
+var tutorialBtn = document.querySelector(".btn");
+tutorialBtn.addEventListener("click", e => {
+    let TutorialModal = new WinBox("Tutorial",{
+        border: 0,
+        width: 400,
+        height: 600,
+        x: "70%",
+        y: "bottom",
+        class: [
+            "no-min",
+            "no-max",
+            "no-full",
+            "no-resize",
+        ],
+    });
+    
+    let stringHTML = '<div class="tutorial">';  
+        stringHTML += '<img src="./res/img/click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
+        stringHTML += '<a class="texto"> Click en la rueda del mouse: arrastra la camara por la pantalla</a> '
+        stringHTML += '<img src="./res/img/right-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
+        stringHTML += '<a class="texto"> Click derecho del mouse: mueve la camara por la pantalla</a> '
+        stringHTML += '<img src="./res/img/left-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
+        stringHTML += '<a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información</a> '
+        stringHTML += '</div>';
+        TutorialModal.body.innerHTML = stringHTML;    
+})
+
 animate();
