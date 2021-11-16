@@ -74,7 +74,73 @@ var randomX, randomZ, lastNodo = 0;
 const nodos = [], calles = [], vincFamily = [];
 const mtlLoader = new MTLLoader();
 const objLoader = new OBJLoader();
+var axis, sign, rotation, distance, rIndex = 0, back = null, arrived = null;
 
+let housesPoints=[
+    {x:35, y:0, z:240}, //casa 1
+    {x:35, y:0, z:340}, //casa 2
+    {x:35, y:0, z:550}, //agua
+    {x:35, y:0, z:690}, //escuela
+    {x:-330, y:0, z:210}, //casa 4
+    {x:-330, y:0, z:340}, //casa 3
+    {x:-330, y:0, z:570}, //bomberos
+    {x:-330, y:0, z:650}, //casa 5
+    {x:-680, y:0, z:230}, //casa 7
+    {x:-680, y:0, z:350}, //luz
+    {x:-680, y:0, z:550}, //hospital
+    {x:-680, y:0, z:700} //casa 6
+]
+
+let coordHouses = [
+    {x:-60, y:0, z:240}, //casa
+    {x:-60, y:0, z:340}, //casa
+    {x:-210, y:0, z:340}, //casa
+    {x:-210, y:0, z:650}, //casa
+    {x:-210, y:0, z:210}, //casa
+    {x:-580, y:0, z:230}, //casa
+    {x:-580, y:0, z:700} //casa
+]
+let coordBuildings = [
+    {x:-60, y:0, z:690}, //school
+    {x:-60, y:0, z:550}, //agua
+    {x:-580, y:0, z:350}, //luz
+    {x:-580, y:0, z:550}, //hospital
+    {x:-210, y:0, z:570}, //bomberos
+    {x:-580, y:0, z:450} //supermarket
+]
+
+var controlPoints = [
+    {x:35, y:0, z:90}, 
+    {x:15, y:0, z:110},
+    {x:35, y:0, z:440}, 
+    {x:35, y:0, z:460}, 
+    {x:20, y:0, z:440}, 
+    {x:20, y:0, z:460}, 
+    {x:35, y:0, z:800}, 
+    {x:15, y:0, z:780}, 
+    
+    {x:-330, y:0, z:90}, 
+    {x:-310, y:0, z:90}, 
+    {x:-330, y:0, z:110}, 
+    {x:-310, y:0, z:110},
+    {x:-330, y:0, z:440}, 
+    {x:-310, y:0, z:440}, 
+    {x:-330, y:0, z:460}, 
+    {x:-310, y:0, z:460},
+    {x:-310, y:0, z:800}, 
+    {x:-330, y:0, z:800}, 
+    {x:-310, y:0, z:780}, 
+    {x:-330, y:0, z:780},
+
+    {x:-680, y:0, z:90}, 
+    {x:-660, y:0, z:110}, 
+    {x:-680, y:0, z:800}, 
+    {x:-660, y:0, z:780}
+];
+
+var routePoints =[];
+
+route();
 Models();
 houses();
 buildings();
@@ -82,24 +148,7 @@ cars();
 mapa();
 mountains();
 
-let coord = [
-    {x:-50, y:0, z:240}, 
-    {x:-60, y:0, z:340}, 
-    {x:-210, y:0, z:340}, 
-    {x:-210, y:0, z:650}, 
-    {x:-210, y:0, z:210}, 
-    {x:-580, y:0, z:230}, 
-    {x:-580, y:0, z:700}, 
-    {x:-60, y:0, z:690}, 
-    {x:-60, y:0, z:550}, 
-    {x:-580, y:0, z:350}, 
-    {x:-580, y:0, z:550}, 
-    {x:-210, y:0, z:570},
-    {x:-580, y:0, z:450}
-];
-
-let newcar = null;
-let newcar2 = null;
+var newcar = null, newcar2 = null;
 
 function houses() {
     let n = 7;
@@ -109,14 +158,15 @@ function houses() {
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/house_type0' + index + '.obj', (root) => {
+                let hCoords = parseInt(Math.random() * (coordHouses.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                    root.position.set( coord[index - 1].x , coord[index - 1].y , coord[index - 1].z );
-                    if(coord[index - 1].x == -210)  root.rotation.y= 3 * (Math.PI) /  -2;
-                    else if (coord[index-1].x == -580)  root.rotation.y= 3 * (Math.PI) /  -2;
-                    else root.rotation.y = Math.PI / - 2;
-                    root.name = 'house' + index + '';
-                    scene.add(root);
-                    genGrafo("house", index - 1);
+                root.position.set( coordHouses[hCoords].x , coordHouses[hCoords].y , coordHouses[hCoords].z );
+                if(coordHouses[hCoords].x == -210)  root.rotation.y= 3 * (Math.PI) /  -2;
+                else if (coordHouses[hCoords].x == -580)  root.rotation.y= 3 * (Math.PI) /  -2;
+                else root.rotation.y = Math.PI / - 2;
+                root.name = 'house' + index + '';
+                scene.add(root);
+                genGrafo("house", hCoords);
             });
         });
     }
@@ -131,13 +181,14 @@ function buildings() {
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/large_building0' + index + '.obj', (root) => {
+                let hCoords = parseInt(Math.random() * (coordBuildings.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                root.position.set( coord[index + 6].x , coord[index + 6].y , coord[index + 6].z );
-                if(coord[index-1].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
+                root.position.set( coordBuildings[hCoords].x , coordBuildings[hCoords].y , coordBuildings[hCoords].z );
+                if(coordBuildings[hCoords].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
                 else root.rotation.y = Math.PI / - 2;
                 root.name = buildingsArray[index - 1];
                 scene.add(root);
-                genGrafo(buildingsArray[index - 1], index + 6);
+                genGrafo(buildingsArray[index - 1], hCoords);
             });
         });
     }
@@ -221,6 +272,7 @@ function Models(){
             scene.add(newcar2);
         });
     });
+    turnCar();
 }
 
 function mapa() {
@@ -264,7 +316,7 @@ function mountains() {
                             break;
                         case 2:
                             root.position.set( -1100 , -0.5 , -400 + ( index * 220 ));
-                            root.position.set( 500 - (index*220) , -0.5 , -300 );
+                            root.position.set( 500 - (index * 220) , -0.5 , -300 );
                             root.rotation.y = 3 * Math.PI / 2;
                             break;
                         case 3:
@@ -283,35 +335,6 @@ function mountains() {
     }
 }
 
-
-let controlPoints= [
-    {x:35, y:0, z:90}, 
-    {x:15, y:0, z:110}, 
-    {x:35, y:0, z:440}, 
-    {x:35, y:0, z:460}, 
-    {x:20, y:0, z:440}, 
-    {x:20, y:0, z:460}, 
-    {x:35, y:0, z:800}, 
-    {x:15, y:0, z:780}, 
-    
-    {x:-330, y:0, z:90}, 
-    {x:-310, y:0, z:90}, 
-    {x:-330, y:0, z:110}, 
-    {x:-310, y:0, z:110},
-    {x:-330, y:0, z:440}, 
-    {x:-310, y:0, z:440}, 
-    {x:-330, y:0, z:460}, 
-    {x:-310, y:0, z:460},
-    {x:-310, y:0, z:800}, 
-    {x:-330, y:0, z:800}, 
-    {x:-310, y:0, z:780}, 
-    {x:-330, y:0, z:780},
-
-    {x:-680, y:0, z:90}, 
-    {x:-660, y:0, z:110}, 
-    {x:-680, y:0, z:800}, 
-    {x:-660, y:0, z:780}
-];
 
 // sky
 
@@ -383,9 +406,15 @@ function onWindowResize() {
 }
 
 function genGrafo(type , index) {
-    nodos.push({ id: ++lastNodo, type: type, weight: parseInt(Math.random() * 100 + 1), x: coord[index].x , z: coord[index].z })
     globalThis.nodos = nodos;
-    if ( type !== "house" ) return;
+    if ( type !== "house" ) {
+        nodos.push({ id: ++lastNodo, type: type, x: coordBuildings[index].x , z: coordBuildings[index].z });
+        coordBuildings.splice(index, 1);
+        return;
+    }
+    else {
+        nodos.push({ id: ++lastNodo, type: type, x: coordHouses[index].x , z: coordHouses[index].z })
+    }
     let nRandom = Math.floor(Math.random() * 5);
     let l = nodos[lastNodo - 1];
     let family = [];
@@ -418,6 +447,7 @@ function genGrafo(type , index) {
         default:
             break;
     }
+    coordHouses.splice(index, 1);
     vincFamily.push({ house: l, family: family});
     globalThis.family = family;
     globalThis.vincFamily = vincFamily;  
@@ -550,6 +580,46 @@ function familyInfo(type) {
     }
 }
 
+function route() {
+    routePoints = [  
+        {x:35, y:0, z:90},
+        {x:35, y:0, z:800}, 
+        {x:-680, y:0, z:800},
+        {x:-680, y:0, z:90},
+        {x:35, y:0, z:90}
+    ];
+}
+
+function turnCar() {
+    
+    distance = 0
+    if ( rIndex >= routePoints.length - 1) {
+        arrived = true;
+        return;
+    }
+    
+    if ( routePoints[rIndex].x == routePoints[rIndex + 1].x ) { 
+        sign = Math.sign( Math.abs(routePoints[rIndex + 1].z) - Math.abs(routePoints[rIndex].z));
+        axis = 'z';
+        if (sign > 0) rotation = 0;
+        else {
+            rotation = 3 * Math.PI / 1;
+            back = true;
+        } 
+    }
+    else {
+        sign = Math.sign( Math.abs(routePoints[rIndex].x) - Math.abs(routePoints[rIndex + 1].x));
+        axis = 'x';
+        if (sign > 0) {
+            back = true;
+            rotation = Math.PI / 2;
+        }
+        else rotation = 3 * Math.PI / 2;
+    }
+    rIndex++;
+    
+}
+
 function animate() {
     requestAnimationFrame( animate );
 
@@ -557,18 +627,15 @@ function animate() {
     sim2.rotation.y += 0.02;
 
 
-    if(newcar){
-        if (newcar.position.z >= 807){
-            newcar.position.x -= 0.6;
-            newcar.rotation.y = Math.PI / -2;
-        }
-        else 
-        newcar.position.z += 0.6;
-        
-        newcar2.position.z += 0.8;
+    if ( newcar && !arrived ) {
+
+        distance = sign * 6;
+        newcar.position[axis] += distance;
+        newcar.rotation.y = rotation;
+        if (Math.abs(newcar.position[axis]) > Math.abs(routePoints[rIndex][axis]) && !back) turnCar();
+        else if (Math.abs(newcar.position[axis]) < Math.abs(routePoints[rIndex][axis]) && back) turnCar();
     }
     
-
     
     elevation += 0.05553
     const phi = THREE.MathUtils.degToRad( 90 - elevation );
