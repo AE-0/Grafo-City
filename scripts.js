@@ -55,6 +55,8 @@ controls.addEventListener("change", function() {
 //     controls.target.z = 450;
 // });
 
+const sirena = new Audio('./res/sirena.wav');
+const bomberos = new Audio('./res/bomberos.wav')
 const simGeometry = new THREE.ConeGeometry( 5, 10, 6 );
 const simMaterial = new THREE.MeshStandardMaterial( { color: 0x17DD25, flatShading: true } );
 const sim = new THREE.Mesh( simGeometry, simMaterial );
@@ -174,7 +176,7 @@ function houses() {
 
 
 function buildings() {
-    let buildingsArray = ["school", "agua", "luz", "hospital", "bomberos"];
+    let buildingsArray = ["school", "agua", "luz", "hospital", "bomberos", "market", "comisaria"];
     for (let index = 1; index <= buildingsArray.length; index++) {
         mtlLoader.load('./res/models/large_building0' + index + '.mtl', (mtl) => {
             mtl.preload();
@@ -558,8 +560,38 @@ function onPointerDown(event) {
             }
         }
         stringHTML += '</div>';
+        stringHTML += '<div class="eventos">';
+        stringHTML += '<button class="boton" name="incendio"> 🔥 </button>';
+        stringHTML += '<button class="boton" name="robo"> 🦝 </button>';
+        stringHTML += '<button class="boton" name="mute"> 🔕 </button>';
+        stringHTML += '</div>';
+
         familyModal.body.innerHTML = stringHTML;
+
     }
+
+    var incendioBtn = document.querySelector('.boton[name="incendio"]');
+    incendioBtn.addEventListener("click", e => {
+        sirena.pause();  
+        bomberos.play();
+        bomberos.loop = true; 
+        console.log("🥵🥵");
+    })
+
+    var roboBtn = document.querySelector('.boton[name="robo"]');
+    roboBtn.addEventListener("click", e => {
+        bomberos.pause(); 
+        sirena.play();
+        sirena.loop = true;
+        console.log("🚓🚓");
+    })
+
+    var muteBtn = document.querySelector('.boton[name="mute"]');
+    muteBtn.addEventListener("click", e => {   
+        sirena.pause();
+        bomberos.pause();
+        console.log("🔕🔕");
+    })
 }
 
 function familyInfo(type) {
@@ -695,11 +727,12 @@ function render() {
 var tutorialBtn = document.querySelector(".btn");
 tutorialBtn.addEventListener("click", e => {
     let TutorialModal = new WinBox("Tutorial",{
+        modal: true,
         border: 0,
-        width: 400,
-        height: 600,
-        x: "70%",
-        y: "bottom",
+        width: "80%",
+        height: "80%",
+        x: "center",
+        y: "center",
         class: [
             "no-min",
             "no-max",
@@ -708,7 +741,7 @@ tutorialBtn.addEventListener("click", e => {
         ],
     });
     
-    let stringHTML = '<div class="tutorial">';  
+    let stringHTML = '<div class="tutorial">';
         stringHTML += '<img src="./res/img/click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
         stringHTML += '<a class="texto"> Click en la rueda del mouse: arrastra la camara por la pantalla</a> '
         stringHTML += '<img src="./res/img/right-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
@@ -716,6 +749,14 @@ tutorialBtn.addEventListener("click", e => {
         stringHTML += '<img src="./res/img/left-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
         stringHTML += '<a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información</a> '
         stringHTML += '</div>';
+        stringHTML += '<div class="tutorial">'
+        stringHTML += '<a class="icon"> 🔥 </a> '
+        stringHTML += '<a class="texto"> Click en el botón de fuego para generar un incendio en la casa indicada</a> '
+        stringHTML += '<a class="icon"> 🦝 </a> '
+        stringHTML += '<a class="texto"> Click en el botón de mapache¿? para generar un robo en la casa indicada</a> '
+        stringHTML += '<a class="icon"> 🔕 </a> '
+        stringHTML += '<a class="texto"> Click en el botón de mute para silenciar las alertas</a> '
+
         TutorialModal.body.innerHTML = stringHTML;    
 })
 

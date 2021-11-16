@@ -34,6 +34,20 @@ img {
   margin-left: 3px;
 }
 
+.boton{
+  color: white;
+  background: none;
+  border: 0;
+  display: block ;
+  font-size: 60px;
+  padding: 10px;
+}
+
+.boton:hover { 
+  background: gray;
+  border-radius: 40%;
+}
+
 .btn {
   color: white;
   background: none;
@@ -70,6 +84,7 @@ img {
   font-weight: 600;
 }
 
+
 .family {
   display: flex;
   flex-flow: wrap;
@@ -78,14 +93,25 @@ img {
 
 .tutorial{
   display: flex;
-  flex-flow: wrap;
   margin: 10px;
-  justify-content: center;
 }
 
 .texto{
-  display: flex;
-  text-align: center;
+  display: block;
   font-family: Arial,sans-serif;
-  margin: 5px;
+  margin: 40px;
+}
+
+.eventos{
+  margin: 30px;
+  display: flex;
+  flex-flow: wrap;
+  justify-content: center;
+}
+
+.icon {
+  margin: 10px;
+  height: 70px;
+  width: 70px;
+  font-size: 70px;
 }
