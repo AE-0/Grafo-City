@@ -433,29 +433,29 @@ function genGrafo(type , index) {
     let family = [];
     switch (nRandom) { // Necesita condición (nRandom debe ser >= 2 al menos 1 vez)
         case 0:
-            family.push({ type: "adult"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 1:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 2:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 3:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 4:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         default:
             break;
@@ -559,15 +559,15 @@ function onPointerDown(event) {
         //console.log(houseSelected , vincFamily[houseSelected].family.length);
         if (vincFamily[houseSelected].family.length > 2 ) {
             for (let index = 0; index < 2; index++) {
-                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'man0' : 'woman0') + vincFamily[houseSelected].family[index].avatar  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
             for (let index = 0; index < vincFamily[houseSelected].family.length - 2; index++) {
-                stringHTML += '<img src="./res/img/' + familyInfo('genderChild') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'boy0' : 'girl0') + vincFamily[houseSelected].family[index].avatar  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
         }
         else {
             for (let index = 0; index < vincFamily[houseSelected].family.length; index++) {
-                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG') + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'man0' : 'woman0') + vincFamily[houseSelected].family[index].avatar + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
         }
         stringHTML += '</div>';
@@ -603,24 +603,6 @@ function onPointerDown(event) {
         bomberos.pause();
         console.log("🔕🔕");
     })
-}
-
-function familyInfo(type) {
-
-    let genderAdult, genderChild, nRNG;
-
-    switch (type) {
-        case 'genderAdult':
-            if ( (Math.floor(Math.random() * 2)) ) genderAdult = "man0";
-            else  genderAdult = "woman0";
-            return genderAdult;
-        case 'genderChild':
-            if ( (Math.floor(Math.random() * 2)) ) genderChild = "boy0";
-            else  genderChild = "girl0";
-            return genderChild;
-        case 'nRNG':
-            return nRNG = Math.floor(Math.random() * 2 + 1)
-    }
 }
 
 function route() {
