@@ -82,38 +82,64 @@ var axis, sign, rotation, distance, rIndex = 0, back = null, arrived = null;
 let housesPoints=[
     {x:35, y:0, z:240}, //casa 1
     {x:35, y:0, z:340}, //casa 2
+    {x:35, y:0, z:550}, //agua
+    {x:35, y:0, z:690}, //escuela
     {x:-330, y:0, z:210}, //casa 4
     {x:-330, y:0, z:340}, //casa 3
+    {x:-330, y:0, z:570}, //bomberos
     {x:-330, y:0, z:650}, //casa 5
     {x:-680, y:0, z:230}, //casa 7
+    {x:-680, y:0, z:350}, //luz
+    {x:-680, y:0, z:550}, //hospital
     {x:-680, y:0, z:700} //casa 6
 ]
 
-let buildingsPoints=[
-    {x:35, y:0, z:550}, //agua
-    {x:35, y:0, z:690}, //escuela
-    {x:-330, y:0, z:570}, //bomberos
-    {x:-680, y:0, z:350}, //luz
-    {x:-680, y:0, z:550}, //hospital
-]
-
 let coordHouses = [
-    {x:-80, y:0, z:110}, //casa
-    {x:-80, y:0, z:240}, //casa
-    {x:-230, y:0, z:240}, //casa
-    {x:-230, y:0, z:580}, //casa
-    {x:-230, y:0, z:110}, //casa
+    {x:-60, y:0, z:240}, //casa
+    {x:-60, y:0, z:340}, //casa
+    {x:-210, y:0, z:340}, //casa
+    {x:-210, y:0, z:650}, //casa
+    {x:-210, y:0, z:210}, //casa
+    {x:-580, y:0, z:230}, //casa
+    {x:-580, y:0, z:700} //casa
+]
+let coordBuildings = [
+    {x:-60, y:0, z:690}, //school
+    {x:-60, y:0, z:550}, //agua
+    {x:-580, y:0, z:350}, //luz
+    {x:-580, y:0, z:550}, //hospital
+    {x:-210, y:0, z:570}, //bomberos
+    {x:-580, y:0, z:450} //supermarket
 ]
 
-let coordBuildings = [
-    {x:-80, y:0, z:590}, //school
-    {x:-80, y:0, z:450}, //agua
-    {x:-600, y:0, z:270}, //luz
-    {x:-600, y:0, z:450}, //hospital
-    {x:-230, y:0, z:470}, //bomberos
-    {x:-800, y:0, z:300}, //supermarket
-    {x:-800, y:0, z:500} //police
-]
+var controlPoints = [
+    {x:35, y:0, z:90}, 
+    {x:15, y:0, z:110},
+    {x:35, y:0, z:440}, 
+    {x:35, y:0, z:460}, 
+    {x:20, y:0, z:440}, 
+    {x:20, y:0, z:460}, 
+    {x:35, y:0, z:800}, 
+    {x:15, y:0, z:780}, 
+    
+    {x:-330, y:0, z:90}, 
+    {x:-310, y:0, z:90}, 
+    {x:-330, y:0, z:110}, 
+    {x:-310, y:0, z:110},
+    {x:-330, y:0, z:440}, 
+    {x:-310, y:0, z:440}, 
+    {x:-330, y:0, z:460}, 
+    {x:-310, y:0, z:460},
+    {x:-310, y:0, z:800}, 
+    {x:-330, y:0, z:800}, 
+    {x:-310, y:0, z:780}, 
+    {x:-330, y:0, z:780},
+
+    {x:-680, y:0, z:90}, 
+    {x:-660, y:0, z:110}, 
+    {x:-680, y:0, z:800}, 
+    {x:-660, y:0, z:780}
+];
 
 var routePoints =[];
 
@@ -128,7 +154,7 @@ mountains();
 var newcar = null, newcar2 = null;
 
 function houses() {
-    let n = 5;
+    let n = 7;
     for (let index = 1; index <= n; index++) {
         mtlLoader.load('./res/models/house_type0' + index + '.mtl', (mtl) => {
             mtl.preload();
@@ -138,8 +164,8 @@ function houses() {
                 let hCoords = parseInt(Math.random() * (coordHouses.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                 root.position.set( coordHouses[hCoords].x , coordHouses[hCoords].y , coordHouses[hCoords].z );
-                if(coordHouses[hCoords].x == -230)  root.rotation.y= 3 * (Math.PI) /  -2;
-                else if (coordHouses[hCoords].x == -600)  root.rotation.y= 3 * (Math.PI) /  -2;
+                if(coordHouses[hCoords].x == -210)  root.rotation.y= 3 * (Math.PI) /  -2;
+                else if (coordHouses[hCoords].x == -580)  root.rotation.y= 3 * (Math.PI) /  -2;
                 else root.rotation.y = Math.PI / - 2;
                 root.name = 'house' + index + '';
                 scene.add(root);
@@ -155,23 +181,15 @@ function buildings() {
     for (let index = 1; index <= buildingsArray.length; index++) {
         mtlLoader.load('./res/models/large_building0' + index + '.mtl', (mtl) => {
             mtl.preload();
-            Object.keys(mtl.materials).forEach( function(key) { 
-                mtl.materials[key].flatShading = true;
-                mtl.materials[key].side = 2;
-            });
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/large_building0' + index + '.obj', (root) => {
                 let hCoords = parseInt(Math.random() * (coordBuildings.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                 root.position.set( coordBuildings[hCoords].x , coordBuildings[hCoords].y , coordBuildings[hCoords].z );
-                if(coordBuildings[hCoords].x == -230)  root.rotation.y= (Math.PI) /  2;
-                else if(coordBuildings[hCoords].x == -600)  root.rotation.y= (Math.PI) /  2;
+                if(coordBuildings[hCoords].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
                 else root.rotation.y = Math.PI / - 2;
                 root.name = buildingsArray[index - 1];
-                // if(root.name == "comisaria") root.rotation.y = 2*Math.PI;
-                // if (root.name =="bomberos") root.rotation.y = Math.PI /  2;
-                // if (root.name =="market") root.rotation.y = Math.PI /  -2;
                 scene.add(root);
                 genGrafo(buildingsArray[index - 1], hCoords);
             });
@@ -190,74 +208,32 @@ function cars() {
                 root.scale.x = 15, root.scale.z = 15, root.scale.y = 15;
                 switch (index) {
                     case 1:
-                        if ( nodos[0].x == -230){
-                            randomX = nodos[0].x - 20, randomZ = nodos[0].z + 10;
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else{
-                            randomX = nodos[0].x + 20, randomZ = nodos[0].z - 10;
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[0].x - 20, randomZ = nodos[0].z + 10;
+                        root.rotation.y = Math.PI / 2;
                         break;
                     case 2:
-                        if ( nodos[1].x == -230){
-                            randomX = nodos[1].x - 10, randomZ = nodos[1].z + 20;
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else {
-                            randomX = nodos[1].x - 10, randomZ = nodos[1].z - 20;
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[1].x + 10, randomZ = nodos[1].z - 20;
+                        root.rotation.y = Math.PI / 2;
                         break;
                     case 3:
-                        if ( nodos[2].x == -230){
-                            randomX = nodos[2].x, randomZ = nodos[2].z + 50;
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else {
-                            randomX = nodos[2].x, randomZ = nodos[2].z - 50;
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[2].x, randomZ = nodos[2].z - 50;
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 4:
-                        if ( nodos[3].x == -230){
-                            randomX = nodos[3].x + 15, randomZ = nodos[3].z - 10;
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else {
-                            randomX = nodos[3].x - 15, randomZ = nodos[3].z + 10;
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[3].x + 15, randomZ = nodos[3].z - 10;
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 5:
-                        if ( nodos[4].x == -230){
-                            randomX = nodos[4].x - 10, randomZ = nodos[4].z + 20;
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else {
-                            randomX = nodos[4].x + 10, randomZ = nodos[4].z - 20;
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[4].x - 10, randomZ = nodos[4].z + 20;
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 7:
-                        if ( nodos[9].x == -230 || nodos[9].x ==  -600){
-                            randomX = nodos[9].x , randomZ = nodos[9].z + 55; // ambulance
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else {
-                            randomX = nodos[9].x , randomZ = nodos[9].z - 55; // ambulance
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[11].x - 20, randomZ = nodos[11].z + 55; // ambulance
+                        root.rotation.y = Math.PI / -2;
                         break;
                     case 8:
-                        if ( nodos[5].x == -230 || nodos[5].x == -600){
-                            randomX = nodos[5].x , randomZ = nodos[5].z + 20; // firetruck
-                            root.rotation.y = Math.PI / -2;
-                        }
-                        else {
-                            randomX = nodos[5].x , randomZ = nodos[5].z - 20; // firetruck
-                            root.rotation.y = Math.PI / 2;
-                        }
+                        randomX = nodos[7].x - 10, randomZ = nodos[7].z + 20; // firetruck
+                        root.rotation.y = Math.PI / -2;
                         break;
                     default:
                         randomX = -330, randomZ = 100;
@@ -282,13 +258,26 @@ function Models(){
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/police.obj', (root) => {
             newcar = root;
-            newcar.position.set(-10,0,0);
+            newcar.position.set(40,0,110);
             newcar.scale.set(15,15,15);
             scene.add(newcar);
         });
     });
+
+    mtlLoader.load('./res/models/firetruck.mtl', (mtl) => {
+        mtl.preload();
+        const objLoader = new OBJLoader();
+        objLoader.setMaterials(mtl);
+        objLoader.load('./res/models/firetruck.obj', (root) => {
+            newcar2 = root;
+            newcar2.position.set(20,0,110);
+            newcar2.scale.set(15,15,15);
+            scene.add(newcar2);
+        });
+    });
     turnCar();
 }
+
 function mapa() {
 
     mtlLoader.load('./res/models/mapa.mtl', (mtl) => {
@@ -301,7 +290,7 @@ function mapa() {
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/mapa.obj', (root) => {
             root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-            root.position.set(-350, 0, 350);
+            root.position.set(-320, 0, 450);
             root.rotation.y = 0;
             root.castShadow = true;
             root.receiveShadow = true;
@@ -329,12 +318,12 @@ function mountains() {
                             break;
                         case 2:
                             root.position.set( -1100 , -0.5 , -400 + ( index * 220 ));
-                            root.position.set( 500 - (index * 220) , -0.5 , -380 );
+                            root.position.set( 500 - (index * 220) , -0.5 , -300 );
                             root.rotation.y = 3 * Math.PI / 2;
                             break;
                         case 3:
                             root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
-                            root.position.set( 500 - ( index * 220 ), -0.5 , 1100);
+                            root.position.set( 500 - ( index * 220 ), -0.5 , 1200);
                             root.rotation.y = Math.PI / 2;
                             break;
                         default:
@@ -433,29 +422,29 @@ function genGrafo(type , index) {
     let family = [];
     switch (nRandom) { // Necesita condición (nRandom debe ser >= 2 al menos 1 vez)
         case 0:
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult"});
             break;
         case 1:
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
             break;
         case 2:
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            family.push({ type: "child"});
             break;
         case 3:
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            family.push({ type: "child"});
+            family.push({ type: "child"});
             break;
         case 4:
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
-            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult"});
+            family.push({ type: "adult"});
+            family.push({ type: "child"});
+            family.push({ type: "child"});
+            family.push({ type: "child"});
             break;
         default:
             break;
@@ -559,15 +548,15 @@ function onPointerDown(event) {
         //console.log(houseSelected , vincFamily[houseSelected].family.length);
         if (vincFamily[houseSelected].family.length > 2 ) {
             for (let index = 0; index < 2; index++) {
-                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'man0' : 'woman0') + vincFamily[houseSelected].family[index].avatar  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
             for (let index = 0; index < vincFamily[houseSelected].family.length - 2; index++) {
-                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'boy0' : 'girl0') + vincFamily[houseSelected].family[index].avatar  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + familyInfo('genderChild') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
         }
         else {
             for (let index = 0; index < vincFamily[houseSelected].family.length; index++) {
-                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'man0' : 'woman0') + vincFamily[houseSelected].family[index].avatar + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
+                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG') + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
             }
         }
         stringHTML += '</div>';
@@ -618,22 +607,31 @@ function onPointerDown(event) {
     })
 }
 
+function familyInfo(type) {
+
+    let genderAdult, genderChild, nRNG;
+
+    switch (type) {
+        case 'genderAdult':
+            if ( (Math.floor(Math.random() * 2)) ) genderAdult = "man0";
+            else  genderAdult = "woman0";
+            return genderAdult;
+        case 'genderChild':
+            if ( (Math.floor(Math.random() * 2)) ) genderChild = "boy0";
+            else  genderChild = "girl0";
+            return genderChild;
+        case 'nRNG':
+            return nRNG = Math.floor(Math.random() * 2 + 1)
+    }
+}
+
 function route() {
     routePoints = [  
-        {x:-10, y:0, z:5},
-        {x:-10, y:0, z:690}, 
-        {x:-690, y:0, z:690},
-        {x:-690, y:0, z:5},
-        {x:-360, y:0, z:5},
-        {x:-360, y:0, z:350},
-        {x:-10, y:0, z:350},
-        {x:-10, y:0, z:690},
-        {x:-360, y:0, z:690},
-        {x:-360, y:0, z:350},
-        {x:-10, y:0, z:350},
-        {x:-10, y:0, z:5},
-        {x:-690, y:0, z:5}
-
+        {x:35, y:0, z:90},
+        {x:35, y:0, z:800}, 
+        {x:-680, y:0, z:800},
+        {x:-680, y:0, z:90},
+        {x:35, y:0, z:90}
     ];
 }
 
@@ -648,10 +646,7 @@ function turnCar() {
     if ( routePoints[rIndex].x == routePoints[rIndex + 1].x ) { 
         sign = Math.sign( Math.abs(routePoints[rIndex + 1].z) - Math.abs(routePoints[rIndex].z));
         axis = 'z';
-        if (sign > 0) {
-            rotation = 0;
-            back = false;
-        }
+        if (sign > 0) rotation = 0;
         else {
             rotation = 3 * Math.PI / 1;
             back = true;
@@ -664,12 +659,10 @@ function turnCar() {
             back = true;
             rotation = Math.PI / 2;
         }
-        else {
-            rotation = 3 * Math.PI / 2;
-            back = false;
-        }
+        else rotation = 3 * Math.PI / 2;
     }
     rIndex++;
+    
 }
 
 function animate() {
@@ -681,7 +674,7 @@ function animate() {
 
     if ( newcar && !arrived ) {
 
-        distance = sign * 4;
+        distance = sign * 6;
         newcar.position[axis] += distance;
         newcar.rotation.y = rotation;
         if (Math.abs(newcar.position[axis]) > Math.abs(routePoints[rIndex][axis]) && !back) turnCar();
