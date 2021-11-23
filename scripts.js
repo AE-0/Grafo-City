@@ -56,7 +56,8 @@ controls.addEventListener("change", function() {
 // });
 
 const sirena = new Audio('./res/sirena.wav');
-const bomberos = new Audio('./res/bomberos.wav')
+const bomberos = new Audio('./res/bomberos.wav');
+const ambulancia = new Audio('./res/ambulance.wav');
 const simGeometry = new THREE.ConeGeometry( 5, 10, 6 );
 const simMaterial = new THREE.MeshStandardMaterial( { color: 0x17DD25, flatShading: true } );
 const sim = new THREE.Mesh( simGeometry, simMaterial );
@@ -296,7 +297,6 @@ function mapa() {
             scene.add(root);
         });
     });
-
 }
 
 function mountains() {
@@ -561,9 +561,11 @@ function onPointerDown(event) {
         }
         stringHTML += '</div>';
         stringHTML += '<div class="eventos">';
-        stringHTML += '<button class="boton" name="incendio"> 🔥 </button>';
-        stringHTML += '<button class="boton" name="robo"> 🦝 </button>';
-        stringHTML += '<button class="boton" name="mute"> 🔕 </button>';
+        stringHTML += '<a> __________________________________________ </a>';
+        stringHTML += '<button class="boton" name="incendio"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/firefighter.png"></button>';
+        stringHTML += '<button class="boton" name="robo"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/bad-person.png"></button>';
+        stringHTML += '<button class="boton" name="ambulancia"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/doctor.png"></button>';
+        stringHTML += '<button class="boton" name="mute"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/mute.png"></button>';
         stringHTML += '</div>';
 
         familyModal.body.innerHTML = stringHTML;
@@ -572,7 +574,8 @@ function onPointerDown(event) {
 
     var incendioBtn = document.querySelector('.boton[name="incendio"]');
     incendioBtn.addEventListener("click", e => {
-        sirena.pause();  
+        sirena.pause();
+        ambulancia.pause();  
         bomberos.play();
         bomberos.loop = true; 
         console.log("🥵🥵");
@@ -580,16 +583,26 @@ function onPointerDown(event) {
 
     var roboBtn = document.querySelector('.boton[name="robo"]');
     roboBtn.addEventListener("click", e => {
-        bomberos.pause(); 
+        bomberos.pause();
+        ambulancia.pause(); 
         sirena.play();
         sirena.loop = true;
         console.log("🚓🚓");
+    })
+
+    var ambulanciaBtn = document.querySelector('.boton[name="ambulancia"]');
+    ambulanciaBtn.addEventListener("click", e => {
+        bomberos.pause(); 
+        ambulancia.play();
+        ambulancia.loop = true;
+        console.log("🚑🚑");
     })
 
     var muteBtn = document.querySelector('.boton[name="mute"]');
     muteBtn.addEventListener("click", e => {   
         sirena.pause();
         bomberos.pause();
+        ambulancia.pause();
         console.log("🔕🔕");
     })
 }
@@ -675,7 +688,7 @@ function animate() {
     sun.setFromSphericalCoords( 1, phi, theta );
     uniforms[ 'sunPosition' ].value.copy( sun );
 
-    if ( elevation > 90 ) {
+  /*   if ( elevation > 90 ) {
         hemiLight.intensity -= 0.000203;
         dirLight.intensity -= 0.000203;
         hemiLight.color.setHSL( 28, 95, 46 ); 
@@ -695,7 +708,7 @@ function animate() {
         uniforms[ 'rayleigh' ].value += 0.43157;
         uniforms[ 'mieCoefficient' ].value += 0.0011;
         uniforms[ 'mieDirectionalG' ].value += 0.11; 
-        */
+        
        
     }
     if ( elevation > 360) {
@@ -703,7 +716,8 @@ function animate() {
         dirLight.color.setHSL( 34, 100, 50 );
         hemiLight.intensity += 0.4199;
         dirLight.intensity += 0.5199; 
-    }
+    } 
+    */
 
     controls.update();
     //render();
@@ -743,21 +757,34 @@ tutorialBtn.addEventListener("click", e => {
     
     let stringHTML = '<div class="tutorial">';
         stringHTML += '<img src="./res/img/click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
-        stringHTML += '<a class="texto"> Click en la rueda del mouse: arrastra la camara por la pantalla</a> '
+        stringHTML += '<a class="texto"> Click en la rueda del mouse: arrastra la camara por la pantalla.</a> '
         stringHTML += '<img src="./res/img/right-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
-        stringHTML += '<a class="texto"> Click derecho del mouse: mueve la camara por la pantalla</a> '
+        stringHTML += '<a class="texto"> Click derecho del mouse: mueve la camara por la pantalla.</a> '
         stringHTML += '<img src="./res/img/left-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
-        stringHTML += '<a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información</a> '
+        stringHTML += '<a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información.</a> '
         stringHTML += '</div>';
-        stringHTML += '<div class="tutorial">'
-        stringHTML += '<a class="icon"> 🔥 </a> '
-        stringHTML += '<a class="texto"> Click en el botón de fuego para generar un incendio en la casa indicada</a> '
-        stringHTML += '<a class="icon"> 🦝 </a> '
-        stringHTML += '<a class="texto"> Click en el botón de mapache¿? para generar un robo en la casa indicada</a> '
-        stringHTML += '<a class="icon"> 🔕 </a> '
-        stringHTML += '<a class="texto"> Click en el botón de mute para silenciar las alertas</a> '
+        stringHTML += '<div>';
+        stringHTML += '<h1 class="titulo"> EVENTOS </h1>';
+        stringHTML += '</div>';
+        stringHTML += '<div class="tutorial">';
+        stringHTML += '<img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/firefighter.png">';
+        stringHTML += '<a class="texto"> Click en el botón del bombero para generar un incendio en la casa indicada.</a>';
+        stringHTML += '<img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/bad-person.png">';
+        stringHTML += '<a class="texto"> Click en el botón del ladrón para generar un robo en la casa indicada.</a>';
+        stringHTML += '<img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/doctor.png">';
+        stringHTML += '<a class="texto"> Click en el botón del ladrón para generar una emergencia medica en la casa indicada.</a>';
+        stringHTML += '<img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/mute.png">';
+        stringHTML += '<a class="texto"> Click en el botón de mute para silenciar las alertas.</a>';
+        stringHTML += '</div>';
 
         TutorialModal.body.innerHTML = stringHTML;    
 })
+
+window.onload = function(){
+    var contenedor = document.getElementById('contenedor_carga');
+
+    contenedor.style.visibility = 'hidden';
+    contenedor.style.opacity = '0';
+}
 
 animate();

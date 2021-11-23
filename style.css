@@ -41,6 +41,7 @@ img {
   display: block ;
   font-size: 60px;
   padding: 10px;
+
 }
 
 .boton:hover { 
@@ -91,27 +92,71 @@ img {
   justify-content: center;
 }
 
-.tutorial{
+.tutorial {
   display: flex;
-  margin: 10px;
+  margin: 20px;
 }
 
-.texto{
-  display: block;
+.texto {
   font-family: Arial,sans-serif;
-  margin: 40px;
+  margin: 40px 0px;
 }
 
-.eventos{
+.eventos {
   margin: 30px;
   display: flex;
   flex-flow: wrap;
   justify-content: center;
 }
 
-.icon {
-  margin: 10px;
-  height: 70px;
-  width: 70px;
-  font-size: 70px;
+.titulo {
+  margin: 50px;
+  display: block;
+  text-align: center;
+}
+
+*,*:after, *:before{
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+#contenedor_carga{
+  background-color: rgba(250, 240, 245, 10);
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  -webkit-transition: all 8s ease;
+  -o-transition: all 8s ease;
+  transition: all 8s ease;
+  z-index: 10000;
+
+}
+
+#carga{
+  border: 15px solid #ccc;
+  border-top-color: #f4266a;
+  border-top-style: groove;
+  height: 100px;
+  width: 100px;
+  border-radius: 100%;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+
+  -webkit-animation: girar 1.5s linear infinite;
+  -o-animation: girar 1.5s linear infinite;
+  animation: girar 1.5s linear infinite;
+
+}
+
+ @keyframes girar{
+  from{transform: rotate(0deg);}
+  to{transform: rotate(360deg);}
 }
