@@ -73,6 +73,81 @@ sim2.scale.y = -1;
 scene.add(sim);
 scene.add(sim2);
 
+let familyModal = new WinBox("House", {
+    border: 0,
+    width: 400,
+    height: 600,
+    x: window.innerWidth > 1100 ? "77.25%" : "center",
+    y: "bottom",
+    class: [
+        "terminal",
+        "houseModal",
+        "hidden",
+        "no-close",
+        "no-max",
+        "no-full",
+        "no-resize",
+    ],
+});
+familyModal.body.innerHTML = '<div class="eventos"><button class="boton" name="incendio"><img style="height: 70px; width: 70px;" src="./res/img/firefighter.png"></button><button class="boton" name="robo"><img style="height: 70px; width: 70px;" src="./res/img/bad-person.png"></button><button class="boton" name="ambulancia"><img style="height: 70px; width: 70px;" src="./res/img/doctor.png"></button><button class="boton" name="mute"><img style="height: 70px; width: 70px;" src="./res/img/mute.png"></button></div>';
+globalThis.familyModal = familyModal;
+
+var incendioBtn = document.querySelector('.boton[name="incendio"]');
+incendioBtn.addEventListener("click", e => {
+    sirena.pause();
+    ambulancia.pause();  
+    bomberos.play();
+    bomberos.loop = true; 
+    console.log("🥵🥵");
+    logConsole.body.innerHTML += '<p>🥵🥵</p>';
+})
+
+var roboBtn = document.querySelector('.boton[name="robo"]');
+roboBtn.addEventListener("click", e => {
+    bomberos.pause();
+    ambulancia.pause(); 
+    sirena.play();
+    sirena.loop = true;
+    console.log("🚓🚓");
+    logConsole.body.innerHTML += '<p>🚓🚓</p>';
+})
+
+var ambulanciaBtn = document.querySelector('.boton[name="ambulancia"]');
+ambulanciaBtn.addEventListener("click", e => {
+    bomberos.pause(); 
+    ambulancia.play();
+    ambulancia.loop = true;
+    console.log("🚑🚑");
+    logConsole.body.innerHTML += '<p>🚑🚑</p>';
+})
+
+var muteBtn = document.querySelector('.boton[name="mute"]');
+muteBtn.addEventListener("click", e => {   
+    sirena.pause();
+    bomberos.pause();
+    ambulancia.pause();
+    console.log("🔕🔕");
+    logConsole.body.innerHTML += '<p>🔕🔕</p>';
+})
+
+let logConsole = new WinBox("user@simcity:~",{
+    minimized: true,
+    border: 0,
+    width: "50%",
+    height: "50%",
+    x: "center",
+    y: "center",
+    class: [
+        "terminal",
+        "no-close",
+        "no-full",
+        "no-resize",
+    ],
+});
+
+logConsole.minimize(true);
+logConsole.body.innerHTML = '<p></p><a class="tcolor1">user</a><a>@</a><a class="tcolor1">simcity</a><a>:</a><a class="pwd">~</a><a class="cmd">$ ./simulation.sh</a>';
+
 var randomX, randomZ, lastNodo = 0;
 const nodos = [], calles = [], vincFamily = [];
 const mtlLoader = new MTLLoader();
@@ -82,63 +157,37 @@ var axis, sign, rotation, distance, rIndex = 0, back = null, arrived = null;
 let housesPoints=[
     {x:35, y:0, z:240}, //casa 1
     {x:35, y:0, z:340}, //casa 2
-    {x:35, y:0, z:550}, //agua
-    {x:35, y:0, z:690}, //escuela
     {x:-330, y:0, z:210}, //casa 4
     {x:-330, y:0, z:340}, //casa 3
-    {x:-330, y:0, z:570}, //bomberos
     {x:-330, y:0, z:650}, //casa 5
     {x:-680, y:0, z:230}, //casa 7
+    {x:-680, y:0, z:700} //casa 6
+];
+
+let buildingsPoints=[
+    {x:35, y:0, z:550}, //agua
+    {x:35, y:0, z:690}, //escuela
+    {x:-330, y:0, z:570}, //bomberos
     {x:-680, y:0, z:350}, //luz
     {x:-680, y:0, z:550}, //hospital
-    {x:-680, y:0, z:700} //casa 6
-]
+];
 
 let coordHouses = [
-    {x:-60, y:0, z:240}, //casa
-    {x:-60, y:0, z:340}, //casa
-    {x:-210, y:0, z:340}, //casa
-    {x:-210, y:0, z:650}, //casa
-    {x:-210, y:0, z:210}, //casa
-    {x:-580, y:0, z:230}, //casa
-    {x:-580, y:0, z:700} //casa
-]
+    {x:-80, y:0, z:110}, //casa
+    {x:-80, y:0, z:240}, //casa
+    {x:-230, y:0, z:240}, //casa
+    {x:-230, y:0, z:580}, //casa
+    {x:-230, y:0, z:110}, //casa
+];
+
 let coordBuildings = [
-    {x:-60, y:0, z:690}, //school
-    {x:-60, y:0, z:550}, //agua
-    {x:-580, y:0, z:350}, //luz
-    {x:-580, y:0, z:550}, //hospital
-    {x:-210, y:0, z:570}, //bomberos
-    {x:-580, y:0, z:450} //supermarket
-]
-
-var controlPoints = [
-    {x:35, y:0, z:90}, 
-    {x:15, y:0, z:110},
-    {x:35, y:0, z:440}, 
-    {x:35, y:0, z:460}, 
-    {x:20, y:0, z:440}, 
-    {x:20, y:0, z:460}, 
-    {x:35, y:0, z:800}, 
-    {x:15, y:0, z:780}, 
-    
-    {x:-330, y:0, z:90}, 
-    {x:-310, y:0, z:90}, 
-    {x:-330, y:0, z:110}, 
-    {x:-310, y:0, z:110},
-    {x:-330, y:0, z:440}, 
-    {x:-310, y:0, z:440}, 
-    {x:-330, y:0, z:460}, 
-    {x:-310, y:0, z:460},
-    {x:-310, y:0, z:800}, 
-    {x:-330, y:0, z:800}, 
-    {x:-310, y:0, z:780}, 
-    {x:-330, y:0, z:780},
-
-    {x:-680, y:0, z:90}, 
-    {x:-660, y:0, z:110}, 
-    {x:-680, y:0, z:800}, 
-    {x:-660, y:0, z:780}
+    {x:-80, y:0, z:590}, //school
+    {x:-80, y:0, z:450}, //agua
+    {x:-600, y:0, z:270}, //luz
+    {x:-600, y:0, z:450}, //hospital
+    {x:-230, y:0, z:470}, //bomberos
+    {x:-800, y:0, z:300}, //supermarket
+    {x:-800, y:0, z:500} //police
 ];
 
 var routePoints =[];
@@ -154,7 +203,8 @@ mountains();
 var newcar = null, newcar2 = null;
 
 function houses() {
-    let n = 7;
+    let n = 5;
+    logConsole.body.innerHTML += '<p>generating ' + n + ' houses...</p>';
     for (let index = 1; index <= n; index++) {
         mtlLoader.load('./res/models/house_type0' + index + '.mtl', (mtl) => {
             mtl.preload();
@@ -164,8 +214,8 @@ function houses() {
                 let hCoords = parseInt(Math.random() * (coordHouses.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                 root.position.set( coordHouses[hCoords].x , coordHouses[hCoords].y , coordHouses[hCoords].z );
-                if(coordHouses[hCoords].x == -210)  root.rotation.y= 3 * (Math.PI) /  -2;
-                else if (coordHouses[hCoords].x == -580)  root.rotation.y= 3 * (Math.PI) /  -2;
+                if(coordHouses[hCoords].x == -230)  root.rotation.y= 3 * (Math.PI) /  -2;
+                else if (coordHouses[hCoords].x == -600)  root.rotation.y= 3 * (Math.PI) /  -2;
                 else root.rotation.y = Math.PI / - 2;
                 root.name = 'house' + index + '';
                 scene.add(root);
@@ -178,18 +228,27 @@ function houses() {
 
 function buildings() {
     let buildingsArray = ["school", "agua", "luz", "hospital", "bomberos", "market", "comisaria"];
+    logConsole.body.innerHTML += '<p>generating ' + buildingsArray.length + ' buildings...</p>';
     for (let index = 1; index <= buildingsArray.length; index++) {
         mtlLoader.load('./res/models/large_building0' + index + '.mtl', (mtl) => {
             mtl.preload();
+            Object.keys(mtl.materials).forEach( function(key) { 
+                mtl.materials[key].flatShading = true;
+                mtl.materials[key].side = 2;
+            });
             const objLoader = new OBJLoader();
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/large_building0' + index + '.obj', (root) => {
                 let hCoords = parseInt(Math.random() * (coordBuildings.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
                 root.position.set( coordBuildings[hCoords].x , coordBuildings[hCoords].y , coordBuildings[hCoords].z );
-                if(coordBuildings[hCoords].x == -210)  root.rotation.y= 3*(Math.PI) /  -2;
+                if(coordBuildings[hCoords].x == -230)  root.rotation.y= (Math.PI) /  2;
+                else if(coordBuildings[hCoords].x == -600)  root.rotation.y= (Math.PI) /  2;
                 else root.rotation.y = Math.PI / - 2;
                 root.name = buildingsArray[index - 1];
+                // if(root.name == "comisaria") root.rotation.y = 2 * Math.PI;
+                // if (root.name =="bomberos") root.rotation.y = Math.PI /  2;
+                // if (root.name =="market") root.rotation.y = Math.PI /  - 2;
                 scene.add(root);
                 genGrafo(buildingsArray[index - 1], hCoords);
             });
@@ -208,32 +267,74 @@ function cars() {
                 root.scale.x = 15, root.scale.z = 15, root.scale.y = 15;
                 switch (index) {
                     case 1:
-                        randomX = nodos[0].x - 20, randomZ = nodos[0].z + 10;
-                        root.rotation.y = Math.PI / 2;
+                        if ( nodos[0].x == -230){
+                            randomX = nodos[0].x - 20, randomZ = nodos[0].z + 10;
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else{
+                            randomX = nodos[0].x + 20, randomZ = nodos[0].z - 10;
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     case 2:
-                        randomX = nodos[1].x + 10, randomZ = nodos[1].z - 20;
-                        root.rotation.y = Math.PI / 2;
+                        if ( nodos[1].x == -230){
+                            randomX = nodos[1].x - 10, randomZ = nodos[1].z + 20;
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else {
+                            randomX = nodos[1].x - 10, randomZ = nodos[1].z - 20;
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     case 3:
-                        randomX = nodos[2].x, randomZ = nodos[2].z - 50;
-                        root.rotation.y = Math.PI / -2;
+                        if ( nodos[2].x == -230){
+                            randomX = nodos[2].x, randomZ = nodos[2].z + 50;
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else {
+                            randomX = nodos[2].x, randomZ = nodos[2].z - 50;
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     case 4:
-                        randomX = nodos[3].x + 15, randomZ = nodos[3].z - 10;
-                        root.rotation.y = Math.PI / -2;
+                        if ( nodos[3].x == -230){
+                            randomX = nodos[3].x + 15, randomZ = nodos[3].z - 10;
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else {
+                            randomX = nodos[3].x - 15, randomZ = nodos[3].z + 10;
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     case 5:
-                        randomX = nodos[4].x - 10, randomZ = nodos[4].z + 20;
-                        root.rotation.y = Math.PI / -2;
+                        if ( nodos[4].x == -230){
+                            randomX = nodos[4].x - 10, randomZ = nodos[4].z + 20;
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else {
+                            randomX = nodos[4].x + 10, randomZ = nodos[4].z - 20;
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     case 7:
-                        randomX = nodos[11].x - 20, randomZ = nodos[11].z + 55; // ambulance
-                        root.rotation.y = Math.PI / -2;
+                        if ( nodos[9].x == -230 || nodos[9].x ==  -600){
+                            randomX = nodos[9].x , randomZ = nodos[9].z + 55; // ambulance
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else {
+                            randomX = nodos[9].x , randomZ = nodos[9].z - 55; // ambulance
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     case 8:
-                        randomX = nodos[7].x - 10, randomZ = nodos[7].z + 20; // firetruck
-                        root.rotation.y = Math.PI / -2;
+                        if ( nodos[5].x == -230 || nodos[5].x == -600){
+                            randomX = nodos[5].x , randomZ = nodos[5].z + 20; // firetruck
+                            root.rotation.y = Math.PI / -2;
+                        }
+                        else {
+                            randomX = nodos[5].x , randomZ = nodos[5].z - 20; // firetruck
+                            root.rotation.y = Math.PI / 2;
+                        }
                         break;
                     default:
                         randomX = -330, randomZ = 100;
@@ -258,21 +359,9 @@ function Models(){
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/police.obj', (root) => {
             newcar = root;
-            newcar.position.set(40,0,110);
+            newcar.position.set(-10,0,0);
             newcar.scale.set(15,15,15);
             scene.add(newcar);
-        });
-    });
-
-    mtlLoader.load('./res/models/firetruck.mtl', (mtl) => {
-        mtl.preload();
-        const objLoader = new OBJLoader();
-        objLoader.setMaterials(mtl);
-        objLoader.load('./res/models/firetruck.obj', (root) => {
-            newcar2 = root;
-            newcar2.position.set(20,0,110);
-            newcar2.scale.set(15,15,15);
-            scene.add(newcar2);
         });
     });
     turnCar();
@@ -290,7 +379,7 @@ function mapa() {
         objLoader.setMaterials(mtl);
         objLoader.load('./res/models/mapa.obj', (root) => {
             root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-            root.position.set(-320, 0, 450);
+            root.position.set(-350, 0, 350);
             root.rotation.y = 0;
             root.castShadow = true;
             root.receiveShadow = true;
@@ -318,12 +407,12 @@ function mountains() {
                             break;
                         case 2:
                             root.position.set( -1100 , -0.5 , -400 + ( index * 220 ));
-                            root.position.set( 500 - (index * 220) , -0.5 , -300 );
+                            root.position.set( 500 - (index * 220) , -0.5 , -380 );
                             root.rotation.y = 3 * Math.PI / 2;
                             break;
                         case 3:
                             root.position.set( -1100 , -0.5 , -400 + ( index * 220 ))
-                            root.position.set( 500 - ( index * 220 ), -0.5 , 1200);
+                            root.position.set( 500 - ( index * 220 ), -0.5 , 1100);
                             root.rotation.y = Math.PI / 2;
                             break;
                         default:
@@ -401,12 +490,6 @@ window.addEventListener( 'resize', onWindowResize );
 window.addEventListener( 'pointerdown', onPointerDown );
 window.requestAnimationFrame(render);
 
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-}
-
 function genGrafo(type , index) {
     globalThis.nodos = nodos;
     if ( type !== "house" ) {
@@ -422,29 +505,29 @@ function genGrafo(type , index) {
     let family = [];
     switch (nRandom) { // Necesita condición (nRandom debe ser >= 2 al menos 1 vez)
         case 0:
-            family.push({ type: "adult"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 1:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 2:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 3:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         case 4:
-            family.push({ type: "adult"});
-            family.push({ type: "adult"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
-            family.push({ type: "child"});
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
+            family.push({ type: "child", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
         default:
             break;
@@ -511,8 +594,12 @@ function checkIntersection() {
         const selectedObject = intersects[ 0 ].object;
         addSelectedObject( selectedObject );
         outlinePass.selectedObjects = selectedObjects;
+        document.querySelector("canvas").style.cursor = "pointer";
 
-    } else outlinePass.selectedObjects = [];
+    } else {
+        outlinePass.selectedObjects = [];
+        document.querySelector("canvas").style.cursor = "initial";
+    }
 
 }
 
@@ -529,109 +616,52 @@ function onPointerDown(event) {
         const object = intersects[0].object;
         console.log(object)
 
-        let familyModal = new WinBox(object.name, {
-            border: 0,
-            width: 400,
-            height: 600,
-            x: "70%",
-            y: "bottom",
-            class: [
-                "no-min",
-                "no-max",
-                "no-full",
-                "no-resize",
-            ],
-        });
+        if ( document.querySelector(".winbox.houseModal > .wb-body > .family") ) {            
+            document.querySelector(".winbox.houseModal > .wb-body > .family").remove();
+            document.querySelector(".winbox.houseModal > .wb-body > .spacing.horizontal").remove();
+        }
         
         let houseSelected = object.name[object.name.length - 1] - 1;
-        let stringHTML = '<div class="family">';
-        //console.log(houseSelected , vincFamily[houseSelected].family.length);
+        var stringHTML = '<div class="family">';
         if (vincFamily[houseSelected].family.length > 2 ) {
             for (let index = 0; index < 2; index++) {
-                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
-            }
+                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'man0' : 'woman0') + vincFamily[houseSelected].family[index].avatar  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';            }
             for (let index = 0; index < vincFamily[houseSelected].family.length - 2; index++) {
-                stringHTML += '<img src="./res/img/' + familyInfo('genderChild') + familyInfo('nRNG')  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
-            }
+                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'boy0' : 'girl0') + vincFamily[houseSelected].family[index].avatar  + '.png" style="height: 70px; width: 70px; margin: 25px;" >';            }
         }
         else {
             for (let index = 0; index < vincFamily[houseSelected].family.length; index++) {
-                stringHTML += '<img src="./res/img/' + familyInfo('genderAdult') + familyInfo('nRNG') + '.png" style="height: 70px; width: 70px; margin: 25px;" >';
-            }
+                stringHTML += '<img src="./res/img/' + (vincFamily[houseSelected].family[index].gender > 0 ? 'man0' : 'woman0') + vincFamily[houseSelected].family[index].avatar + '.png" style="height: 70px; width: 70px; margin: 25px;" >';            }
         }
         stringHTML += '</div>';
-        stringHTML += '<div class="eventos">';
-        stringHTML += '<a> __________________________________________ </a>';
-        stringHTML += '<button class="boton" name="incendio"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/firefighter.png"></button>';
-        stringHTML += '<button class="boton" name="robo"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/bad-person.png"></button>';
-        stringHTML += '<button class="boton" name="ambulancia"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/doctor.png"></button>';
-        stringHTML += '<button class="boton" name="mute"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/mute.png"></button>';
-        stringHTML += '</div>';
+        stringHTML += '<span class="spacing horizontal"></span>'
 
-        familyModal.body.innerHTML = stringHTML;
-
+        document.querySelector(".winbox.houseModal > .wb-body").insertAdjacentHTML('beforeend', stringHTML);
+        familyModal.removeClass("hidden");
+        familyModal.minimize(false);
+        logConsole.body.innerHTML += '<p>selected ' + object.name + " x:" + object.parent.position.x + " y:" + object.parent.position.y + " z:" + object.parent.position.z + '</p>';
     }
-
-    var incendioBtn = document.querySelector('.boton[name="incendio"]');
-    incendioBtn.addEventListener("click", e => {
-        sirena.pause();
-        ambulancia.pause();  
-        bomberos.play();
-        bomberos.loop = true; 
-        console.log("🥵🥵");
-    })
-
-    var roboBtn = document.querySelector('.boton[name="robo"]');
-    roboBtn.addEventListener("click", e => {
-        bomberos.pause();
-        ambulancia.pause(); 
-        sirena.play();
-        sirena.loop = true;
-        console.log("🚓🚓");
-    })
-
-    var ambulanciaBtn = document.querySelector('.boton[name="ambulancia"]');
-    ambulanciaBtn.addEventListener("click", e => {
-        bomberos.pause(); 
-        ambulancia.play();
-        ambulancia.loop = true;
-        console.log("🚑🚑");
-    })
-
-    var muteBtn = document.querySelector('.boton[name="mute"]');
-    muteBtn.addEventListener("click", e => {   
-        sirena.pause();
-        bomberos.pause();
-        ambulancia.pause();
-        console.log("🔕🔕");
-    })
-}
-
-function familyInfo(type) {
-
-    let genderAdult, genderChild, nRNG;
-
-    switch (type) {
-        case 'genderAdult':
-            if ( (Math.floor(Math.random() * 2)) ) genderAdult = "man0";
-            else  genderAdult = "woman0";
-            return genderAdult;
-        case 'genderChild':
-            if ( (Math.floor(Math.random() * 2)) ) genderChild = "boy0";
-            else  genderChild = "girl0";
-            return genderChild;
-        case 'nRNG':
-            return nRNG = Math.floor(Math.random() * 2 + 1)
+    else {
+        // familyModal.addClass("hidden");
     }
 }
 
 function route() {
     routePoints = [  
-        {x:35, y:0, z:90},
-        {x:35, y:0, z:800}, 
-        {x:-680, y:0, z:800},
-        {x:-680, y:0, z:90},
-        {x:35, y:0, z:90}
+        {x:-10, y:0, z:5},
+        {x:-10, y:0, z:690}, 
+        {x:-690, y:0, z:690},
+        {x:-690, y:0, z:5},
+        {x:-360, y:0, z:5},
+        {x:-360, y:0, z:350},
+        {x:-10, y:0, z:350},
+        {x:-10, y:0, z:690},
+        {x:-360, y:0, z:690},
+        {x:-360, y:0, z:350},
+        {x:-10, y:0, z:350},
+        {x:-10, y:0, z:5},
+        {x:-690, y:0, z:5}
+
     ];
 }
 
@@ -646,7 +676,10 @@ function turnCar() {
     if ( routePoints[rIndex].x == routePoints[rIndex + 1].x ) { 
         sign = Math.sign( Math.abs(routePoints[rIndex + 1].z) - Math.abs(routePoints[rIndex].z));
         axis = 'z';
-        if (sign > 0) rotation = 0;
+        if (sign > 0) {
+            rotation = 0;
+            back = false;
+        }
         else {
             rotation = 3 * Math.PI / 1;
             back = true;
@@ -659,10 +692,25 @@ function turnCar() {
             back = true;
             rotation = Math.PI / 2;
         }
-        else rotation = 3 * Math.PI / 2;
+        else {
+            rotation = 3 * Math.PI / 2;
+            back = false;
+        }
     }
     rIndex++;
-    
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    if (!logConsole.min) {
+        logConsole.x = window.innerWidth / 4;
+        logConsole.y = window.innerHeight / 4;
+        logConsole.move();
+    }
+    familyModal.x =  100;
+    familyModal.move();
 }
 
 function animate() {
@@ -674,7 +722,7 @@ function animate() {
 
     if ( newcar && !arrived ) {
 
-        distance = sign * 6;
+        distance = sign * 4;
         newcar.position[axis] += distance;
         newcar.rotation.y = rotation;
         if (Math.abs(newcar.position[axis]) > Math.abs(routePoints[rIndex][axis]) && !back) turnCar();
@@ -763,6 +811,11 @@ tutorialBtn.addEventListener("click", e => {
         stringHTML += '<img src="./res/img/left-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" >';
         stringHTML += '<a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información.</a> '
         stringHTML += '</div>';
+        stringHTML += '<div class="modal">';
+        stringHTML += '<img style="height: 200px; width: 200px; margin: 25px; border: 8px solid #0d1117; border-radius: 15px;" src="./res/img/modal.gif">';
+        stringHTML += '<br>'
+        stringHTML += '<a class="texto">Al hacer click en una casa se desplegarán los EVENTOS.</a>';
+        stringHTML += '</div>';
         stringHTML += '<div>';
         stringHTML += '<h1 class="titulo"> EVENTOS </h1>';
         stringHTML += '</div>';
@@ -779,12 +832,5 @@ tutorialBtn.addEventListener("click", e => {
 
         TutorialModal.body.innerHTML = stringHTML;    
 })
-
-window.onload = function(){
-    var contenedor = document.getElementById('contenedor_carga');
-
-    contenedor.style.visibility = 'hidden';
-    contenedor.style.opacity = '0';
-}
 
 animate();

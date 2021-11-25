@@ -11,27 +11,31 @@ img {
   height: 45px;
   position: absolute;
   width: 100%;
-  background: #080A0E;
+  background: -webkit-linear-gradient(top, #000000 0%,#070515 100%);
+  box-shadow: 0px 2px 0px #251d6c;
+  display: inline-flex;
+  align-items: center;
 }
 
 .logo {
   width: 40px;
   height: 40px;
-  display: inline-block;
-}
-
-.logo:hover {
-  background: gray; 
 }
 
 .spacing {
-  width: 2px;
+  width: 3px;
   height: 26px;
-  background: white;
-  float: left;
-  position: absolute;
-  margin-top: 10px;
+  /* background: #424d63; */
+  background: #121420;
   margin-left: 3px;
+  display: inline-flex;
+}
+
+.horizontal {
+  width: -webkit-fill-available;
+  height: 3px;
+  margin: 0px 40px;
+  order: 1;
 }
 
 .boton{
@@ -39,41 +43,52 @@ img {
   background: none;
   border: 0;
   display: block ;
-  font-size: 60px;
   padding: 10px;
-
+  border: 1px solid #04050f;
+  outline: none;
 }
 
 .boton:hover { 
-  background: gray;
-  border-radius: 40%;
+  border-radius: 50%;
+  border-color: #192047;
+  transform: scale(1.1);
+  cursor: pointer;
 }
 
-.btn {
+.boton[name="mute"] > * {
+  filter: invert(.9);
+}
+
+.btn, .log {
   color: white;
   background: none;
   border: 0;
   font-size: 15px;
-  margin: 15px;
-  position: absolute;
+  margin: 0 12px;
+  padding: 4px;
+  border-radius: 4px;
 }
 
-.btn:hover { 
-  background: gray;
+.btn:hover , .log:hover{ 
+  background: linear-gradient(0deg, #1a48ac, #361049);
+  cursor: pointer;
 }
 
 .winbox {
   background: #0d1117;
   border-radius: 12px 12px 0 0;
   box-shadow: none;
+  filter: drop-shadow(black 2px 4px 6px);
 }
 
 .winbox.min {
-  border-radius: 0;
+  border-radius: 12px 12px 0 0;
+}
+.winbox.min:first-child:hover {
+  cursor: pointer;
 }
 
 .wb-body {
-  /* the width of window border: */
   margin: 4px;
   color: #fff;
   background: #131820;
@@ -84,17 +99,107 @@ img {
   text-transform: uppercase;
   font-weight: 600;
 }
+.wb-icon {
+  display: flex;
+}
 
+.wb-close {
+  order: 0;
+}
+
+.wb-min {
+  order: 1;
+}
+
+.wb-max {
+  order: 2;
+}
+
+.winbox.terminal {
+  background: #070515;
+  border-radius: 12px 12px 0 0;
+  animation: popup .3s cubic-bezier(.3,1,.3,1) backwards;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.winbox.winbox.terminal > .wb-body {
+  background: #04050f;
+}
+
+.winbox.winbox.houseModal > .wb-body {
+  display: flex;
+  flex-flow: column;
+}
+
+.winbox.winbox.terminal > .wb-header > .wb-title {
+  text-transform: initial;
+}
+
+.winbox.winbox.terminal > .wb-header > .wb-icon{
+  float: left;
+}
+
+.winbox.winbox.terminal > .wb-header > .wb-icon *{
+  width: 26px;
+  height: 70%;
+  align-self: center;
+  background-size: 12px auto;
+}
+
+.winbox.winbox.terminal > .wb-header{
+  background: -webkit-linear-gradient(top, #11121e 0%,#070515 100%);
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0px 2px 0px #1f1b38 inset;
+}
+
+.winbox.winbox.terminal > .wb-body > p {
+  margin: 0;
+}
+
+a.tcolor1 {
+  color: #d144b6;
+  font-weight: bold;
+}
+
+a.pwd {
+  color: #4295f6;
+}
+
+a.cmd:after {
+  content: "█";
+  display: inline-flex;
+  outline: 1px solid #04050f;
+  animation: blink-animation 1s steps(5, start) infinite;
+  -webkit-animation: blink-animation 1s steps(5, start) infinite;
+}
+
+
+@keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+@-webkit-keyframes blink-animation {
+  to {
+    visibility: hidden;
+  }
+}
+
+.winbox.hidden {
+  visibility: hidden;
+}
 
 .family {
   display: flex;
   flex-flow: wrap;
   justify-content: center;
+  order: 0;
 }
 
 .tutorial {
   display: flex;
   margin: 20px;
+  text-align: center;
 }
 
 .texto {
@@ -102,25 +207,24 @@ img {
   margin: 40px 0px;
 }
 
+.modal { 
+  text-align: center;
+  margin: 20px 20px;
+}
+
 .eventos {
   margin: 30px;
   display: flex;
   flex-flow: wrap;
   justify-content: center;
+  align-items: center;
+  order: 2;
 }
 
 .titulo {
   margin: 50px;
   display: block;
   text-align: center;
-}
-
-*,*:after, *:before{
-  margin: 0;
-  padding: 0;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
 }
 
 #contenedor_carga{
@@ -159,4 +263,23 @@ img {
  @keyframes girar{
   from{transform: rotate(0deg);}
   to{transform: rotate(360deg);}
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #121420;
+  border-radius: 4px;
+  margin: 6px 0 2px 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #16183a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #251d6c;
 }
