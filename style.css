@@ -202,9 +202,21 @@ a.cmd:after {
   text-align: center;
 }
 
+.tutorial-container {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  margin: 0px 18px;
+  width: 200px;
+  background: #0d1117;
+  background-position-y: -46px;
+  border-radius: 14px;
+  border: 1px solid #1d232c;
+}
+
 .texto {
   font-family: Arial,sans-serif;
-  margin: 40px 0px;
+  padding: 0 8px 8px 8px;
 }
 
 .modal { 
@@ -218,8 +230,75 @@ a.cmd:after {
   flex-flow: wrap;
   justify-content: center;
   align-items: center;
-  order: 2;
+  order: 3;
 }
+
+.move-select {
+  display: flex;
+  order: 2;
+  align-self: center;
+}
+
+.goto {
+  background: -webkit-linear-gradient(bottom, #0b0c13 0%,#1f1b38 100%);  align-self: center;
+  padding: 7px;
+  border-radius: 0 0 0 4px;
+  border-right: 2px solid #04050f;
+  font-family: Arial;
+  font-size: 13px;
+  font-weight: 600;
+  user-select: none;
+}
+
+select.selector {
+  display: flex;
+  order: 0;
+  background: -webkit-linear-gradient(bottom, #0b0c13 0%,#1f1b38 100%);  color: white;
+  border: none;
+  outline: none;
+  height: 29px;
+  width: 10vw;
+  align-self: center;
+  text-align-last: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+select.selector:focus {
+  background: -webkit-linear-gradient(bottom, #0b0c13 0%,#09061b 100%);
+}
+
+.selector > option {
+  background: #04050f;
+}
+
+.btn2:focus {
+  background: -webkit-linear-gradient(bottom, #0b0c13 0%,#09061b 100%);
+}
+
+.btn2 {
+  background: -webkit-linear-gradient(bottom, #0b0c13 0%,#1f1b38 100%);  color: white;
+  border-radius: 0 0 4px 0;
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  outline: none;
+  padding-left: 10px;
+  cursor: pointer;
+  border-color: #04050f;
+}
+
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+
+/* .wb-body * > img {
+  filter: drop-shadow(0px 0px 9px rgb(18, 29, 112));
+} */
 
 .titulo {
   margin: 50px;
@@ -282,4 +361,85 @@ a.cmd:after {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #251d6c;
+}
+
+#loading-screen {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000000;
+	opacity: 1;
+ 	transition: 1s opacity;
+}
+
+#loading-screen.fade-out {
+    opacity: 0;
+}
+
+#loader {
+    display: block;
+    position: relative;
+    left: 50%;
+    top: 50%;
+    width: 150px;
+    height: 150px;
+    margin: -75px 0 0 -75px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #9370DB;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+#loader:before {
+    content: "";
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #BA55D3;
+    -webkit-animation: spin 3s linear infinite;
+    animation: spin 3s linear infinite;
+}
+#loader:after {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 15px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #FF00FF;
+    -webkit-animation: spin 1.5s linear infinite;
+    animation: spin 1.5s linear infinite;
+}
+@-webkit-keyframes spin {
+    0%   {
+        -webkit-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+@keyframes spin {
+    0%   {
+        -webkit-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
 }
