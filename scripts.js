@@ -8,6 +8,7 @@ import { EffectComposer } from 'https://cdn.skypack.dev/three@0.133.1/examples/j
 import { FXAAShader } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/shaders/FXAAShader.js';
 import { ShaderPass } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/postprocessing/ShaderPass.js';
 import { RenderPass } from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/postprocessing/RenderPass.js';
+import Stats from 'https://cdn.skypack.dev/three@0.133.1/examples/jsm/libs/stats.module.js';
 
 let camera, scene, renderer, controls;
 let sky, sun;
@@ -62,18 +63,6 @@ controls.addEventListener("change", function() {
 const sirena = new Audio('./res/sirena.wav');
 const bomberos = new Audio('./res/bomberos.wav');
 const ambulancia = new Audio('./res/ambulance.wav');
-const simGeometry = new THREE.ConeGeometry( 5, 10, 6 );
-const simMaterial = new THREE.MeshStandardMaterial( { color: 0x17DD25, flatShading: true } );
-const sim = new THREE.Mesh( simGeometry, simMaterial );
-const sim2 = new THREE.Mesh( simGeometry, simMaterial );
-
-sim.castShadow = true;
-sim2.castShadow = true;
-sim.position.set(0, 15, 0);
-sim2.position.set(0, 5, 0);
-sim2.scale.y = -1;
-/* scene.add(sim);
-scene.add(sim2); */
 
 let familyModal = new WinBox("House", {
     border: 0,
@@ -92,64 +81,115 @@ let familyModal = new WinBox("House", {
     ],
 });
 familyModal.body.innerHTML = '<div class="move-select"><span class="goto">Go to: </span><select class="selector"><option value="" selected disabled hidden>Choose here</option><option value="luz">Luz</option><option value="agua">Agua</option><option value="school">Escuela</option><option value="market">Supermercado</option></select><button class="btn2">⮞</button></div>';
-familyModal.body.innerHTML += '<div class="eventos"><button class="boton" name="incendio"><img style="height: 70px; width: 70px;" src="./res/img/firefighter.png"></button><button class="boton" name="robo"><img style="height: 70px; width: 70px;" src="./res/img/bad-person.png"></button><button class="boton" name="ambulancia"><img style="height: 70px; width: 70px;" src="./res/img/doctor.png"></button><button class="boton" name="mute"><img style="height: 70px; width: 70px;" src="./res/img/mute.png"></button></div>';
+familyModal.body.innerHTML += '<div class="eventos"><button class="boton" name="incendio"><img style="height: 70px; width: 70px;" src="./res/img/firefighter.png"></button><button class="boton" name="robo"><img style="height: 70px; width: 70px;" src="./res/img/bad-person.png"></button><button class="boton" name="ambulancia"><img style="height: 70px; width: 70px;" src="./res/img/doctor.png"></button></div><div class="block"></div>';
 globalThis.familyModal = familyModal;
 
-var goto;
+var goto, axis, sign, rotation, distance, rIndex = 0, back = null, arrived = null;
+
+var timer = document.querySelector(".time");
 
 var gotoBtn = document.querySelector(".btn2");
 gotoBtn.addEventListener("click", e => {
     goto = document.querySelector(".selector").value;
     logConsole.body.innerHTML += '<p>Selected location: ' + goto + '</p>';
+    document.querySelector(".block").style.visibility = "visible";
+    document.querySelector(".eventos").style.filter = "opacity(0.6) grayscale(1)";
+    document.querySelector(".move-select").style.filter = "opacity(0.6) grayscale(1)";
     arrived = false;
+    rIndex = 0;
     newcar = nodos[houseSelected].car;
     route(goto);
     turnCar();
-    // dijkstra(goto);
 })
 
 var incendioBtn = document.querySelector('.boton[name="incendio"]');
 incendioBtn.addEventListener("click", e => {
-    sirena.pause();
-    ambulancia.pause();  
-    bomberos.play();
+    if (muteBtn.value == "on") {
+        bomberos.play();
+    }
     bomberos.loop = true; 
-    logConsole.body.innerHTML += '<p>🥵🥵</p>';
-    console.log(nodos[houseSelected].car);
+    logConsole.body.innerHTML += "<p>firefighters were called at " + nodos[houseSelected].type + " x:" + nodos[houseSelected].x + " z:" +  nodos[houseSelected].z + "</p>";
+    document.querySelector(".block").style.visibility = "visible";
+    document.querySelector(".eventos").style.filter = "opacity(0.6) grayscale(1)";
+    document.querySelector(".move-select").style.filter = "opacity(0.6) grayscale(1)";
+
+    var goto = nodos[houseSelected].type
+    arrived = false;
+    rIndex = 0;
+    for (let i of allNodes.slice(0, 12)) {
+        if (i.type == "bomberos") {
+           houseSelected = i.id - 1
+        }
+    }
+    newcar = nodos[houseSelected].car;
+    route(goto);
+    turnCar();
 })
 
 var roboBtn = document.querySelector('.boton[name="robo"]');
 roboBtn.addEventListener("click", e => {
-    bomberos.pause();
-    ambulancia.pause(); 
-    sirena.play();
+    if (muteBtn.value == "on")  sirena.play();      
+    else sirena.pause();
     sirena.loop = true;
     console.log("🚓🚓");
-    logConsole.body.innerHTML += '<p>🚓🚓</p>';
-    /* var goto = "house"
+    logConsole.body.innerHTML += "<p>the police was called at " + nodos[houseSelected].type + " x:" + nodos[houseSelected].x + " z:" +  nodos[houseSelected].z + "</p>";
+    document.querySelector(".block").style.visibility = "visible";
+    document.querySelector(".eventos").style.filter = "opacity(0.6) grayscale(1)";
+    document.querySelector(".move-select").style.filter = "opacity(0.6) grayscale(1)";
+
+    var goto = nodos[houseSelected].type
     arrived = false;
-    houseSelected = 7;
+    rIndex = 0;
+    for (let i of allNodes.slice(0, 12)) {
+        if (i.type == "comisaria") {
+           houseSelected = i.id - 1
+        }
+    }
     newcar = nodos[houseSelected].car;
     route(goto);
-    turnCar(); */
+    turnCar();
+
 })
 
 var ambulanciaBtn = document.querySelector('.boton[name="ambulancia"]');
 ambulanciaBtn.addEventListener("click", e => {
-    bomberos.pause(); 
-    ambulancia.play();
+    if (muteBtn.value == "on") {
+        ambulancia.play();
+    }
     ambulancia.loop = true;
-    console.log("🚑🚑");
-    logConsole.body.innerHTML += '<p>🚑🚑</p>';
+    logConsole.body.innerHTML += "<p>the ambulance was called at " + nodos[houseSelected].type + " x:" + nodos[houseSelected].x + " z:" +  nodos[houseSelected].z + "</p>";
+    document.querySelector(".block").style.visibility = "visible";
+    document.querySelector(".eventos").style.filter = "opacity(0.6) grayscale(1)";
+    document.querySelector(".move-select").style.filter = "opacity(0.6) grayscale(1)";
+
+    var goto = nodos[houseSelected].type
+    arrived = false;
+    rIndex = 0;
+    for (let i of allNodes.slice(0, 12)) {
+        if (i.type == "hospital") {
+           houseSelected = i.id - 1
+        }
+    }
+    newcar = nodos[houseSelected].car;
+    route(goto);
+    turnCar();
 })
 
 var muteBtn = document.querySelector('.boton[name="mute"]');
 muteBtn.addEventListener("click", e => {   
-    sirena.pause();
-    bomberos.pause();
-    ambulancia.pause();
-    console.log("🔕🔕");
-    logConsole.body.innerHTML += '<p>🔕🔕</p>';
+    if (muteBtn.value == "on") {
+        sirena.pause();
+        ambulancia.pause();
+        bomberos.pause();
+        logConsole.body.innerHTML += '<p>audio muted</p>';
+        muteBtn.value = "off";
+        muteBtn.children[0].src = "./res/img/muted.png";
+    }
+    else {
+        logConsole.body.innerHTML += '<p>audio unmuted</p>';
+        muteBtn.value = "on";
+        muteBtn.children[0].src = "./res/img/volume.png";
+    }
 })
 
 let logConsole = new WinBox("user@simcity:~",{
@@ -168,32 +208,16 @@ let logConsole = new WinBox("user@simcity:~",{
 });
 
 logConsole.minimize(true);
-logConsole.body.innerHTML = '<p></p><a class="tcolor1">user</a><a>@</a><a class="tcolor1">simcity</a><a>:</a><a class="pwd">~</a><a class="cmd">$ ./simulation.sh</a>';
+logConsole.body.innerHTML = '<p></p><a class="tcolor1">user</a><a>@</a><a class="tcolor1">simcity</a><a>:</a><a class="pwd">~</a><a class="cmd">$ ./simulation.sh</a><div id="performance"></div>';
 
-var randomX, randomZ, lastNodo = 0;
+const clock = new THREE.Clock();
+const performance = document.getElementById( 'performance' );
+const stats = new Stats();
+performance.appendChild( stats.dom );
+
+var randomX, randomZ, lastNodo = 0, houseSelected = null, objSelected = null, tempSelected = null;
 const nodos = [], vincFamily = [];
-var objSelected = null, houseSelected = null;
 const mtlLoader = new MTLLoader(loadingManager);
-const objLoader = new OBJLoader(loadingManager);
-var axis, sign, rotation, distance, rIndex = 0, back = null, arrived = null;
-
-let housesPoints=[
-    {x:35, y:0, z:240}, //casa 1
-    {x:35, y:0, z:340}, //casa 2
-    {x:-330, y:0, z:210}, //casa 4
-    {x:-330, y:0, z:340}, //casa 3
-    {x:-330, y:0, z:650}, //casa 5
-    {x:-680, y:0, z:230}, //casa 7
-    {x:-680, y:0, z:700} //casa 6
-];
-
-let buildingsPoints=[
-    {x:35, y:0, z:550}, //agua
-    {x:35, y:0, z:690}, //escuela
-    {x:-330, y:0, z:570}, //bomberos
-    {x:-680, y:0, z:350}, //luz
-    {x:-680, y:0, z:550}, //hospital
-];
 
 let coordHouses = [
     {x:-80, y:0, z:110},  //casa inferior-centro-derecha
@@ -237,19 +261,16 @@ var streetLinks = [
     {source: streetNodes[4], target: streetNodes[1], weight: Math.floor(Math.random() * 100)},{source: streetNodes[1], target: streetNodes[4], weight: Math.floor(Math.random() * 100)}
 ];
 
-globalThis.streetLinks = streetLinks;
 
 var routePoints =[];
 
-// route();
-// Models();
 houses();
 buildings();
 cars();
 mapa();
 mountains();
 
-var newcar = null, newcar2 = null;
+var newcar = null;
 
 function houses() {
     let n = 5;
@@ -420,22 +441,6 @@ function cars() {
     }
 }
 
-function Models(){
-    mtlLoader.load('./res/models/police.mtl', (mtl) => {
-        mtl.preload();
-        mtl.materials.carTire.color = {r: 1, g: 0.227451, b: 0.3019608};
-        
-        objLoader.setMaterials(mtl);
-        objLoader.load('./res/models/police.obj', (root) => {
-            newcar = root;
-            newcar.position.set(-10,0,0);
-            newcar.scale.set(15,15,15);
-            scene.add(newcar);
-        });
-    });
-    // turnCar();
-}
-
 function mapa() {
     logConsole.body.innerHTML += '<p>loading city map... </p>';
     mtlLoader.load('./res/models/mapa.mtl', (mtl) => {
@@ -522,30 +527,11 @@ hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
 hemiLight.position.set( 0, 200, 0 );
 scene.add( hemiLight );
 
-/* const hemiHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-scene.add( hemiHelper );
- */
 const dirLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 dirLight.color.setHSL( 0.1, 1, 0.95 );
 dirLight.position.set( 1, 1.75, -1 );
 dirLight.position.multiplyScalar( 300 );
 scene.add( dirLight );
-
-/* dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = 2048;
-dirLight.shadow.mapSize.height = 2048;
-
-const d = 50;
-
-dirLight.shadow.camera.left = - d;
-dirLight.shadow.camera.right = d;
-dirLight.shadow.camera.top = d;
-dirLight.shadow.camera.bottom = - d;
-dirLight.shadow.camera.far = 3500;
-dirLight.shadow.bias = - 0.0001;
-
-const dirLightHelper = new THREE.DirectionalLightHelper( dirLight, 10 );
-scene.add( dirLightHelper ); */
 
 const ground = new THREE.Mesh(
     new THREE.BoxGeometry( 1750, 2000, 10, 1 ),
@@ -572,12 +558,12 @@ function genGrafo(type , index) {
         return;
     }
     else {
-        nodos.push({ id: ++lastNodo, type: type, x: coordHouses[index].x , z: coordHouses[index].z })
+        nodos.push({ id: ++lastNodo, type: type + String(lastNodo), x: coordHouses[index].x , z: coordHouses[index].z })
     }
     let nRandom = Math.floor(Math.random() * 5);
     let l = nodos[lastNodo - 1];
     let family = [];
-    switch (nRandom) { // Necesita condición (nRandom debe ser >= 2 al menos 1 vez)
+    switch (nRandom) {
         case 0:
             family.push({ type: "adult", gender: (Math.floor(Math.random() * 2)), avatar: Math.floor(Math.random() * 2 + 1) });
             break;
@@ -698,6 +684,7 @@ function onPointerDown(event) {
         }
         
         houseSelected = object.name[object.name.length - 1] - 1;
+        tempSelected = houseSelected;
         var stringHTML = '<div class="family">';
         if (vincFamily[houseSelected].family.length > 2 ) {
             for (let index = 0; index < 2; index++) {
@@ -724,7 +711,9 @@ function onPointerDown(event) {
 function route(goto) {
 
     var destination, origin, nearRoad, nearRoad2;
-    let aux = 9999;
+    let aux = 9999, aux2 = 9999;
+
+    routePoints = [];
 
     origin = allNodes[houseSelected].car.position;
     routePoints.push({x: origin.x, z: origin.z});                                    //routePoints[0] car initial position
@@ -738,41 +727,40 @@ function route(goto) {
             }
         }
     }
-    routePoints.push({x: nearRoad.x, z: origin.z});                                 //routePoint[1] closest street
-    allNodes.push({id: allNodes.length, type: "temp", x: nearRoad.x, z: origin.z}); //allNodes[20] temporal node needed for Dijkstra's algorithm
+    routePoints.push({x: nearRoad.x, z: origin.z});                                                         //routePoint[1] closest street
+    allNodes.push({id: allNodes.length, type: "temp", x: nearRoad.x, z: origin.z});                         //allNodes[20] temporal node needed for Dijkstra's algorithm
     streetLinks.push({source: allNodes[20], target: nearRoad, weight: Math.floor(Math.random() * 100)})     //streetLinks[20] temporal link needed for Dijkstra's algorithm
     streetLinks.push({source: allNodes[20], target: nearRoad2, weight: Math.floor(Math.random() * 100)})    //streetLinks[21] temporal link needed for Dijkstra's algorithm
 
     dijkstra();
 
-    for (let i of allNodes.slice(5, 12)) {
+    for (let i of allNodes.slice(0, 12)) {
         if (goto == i.type) {
-           destination = i
+           destination = i;
+           break;
         }
     }
-    routePoints.push({x: destination.x, z: destination.z});                         //routePoint[] destination
+    
+    for (let finalpoint of streetLinks) {
+        if ( Math.abs(Math.abs(destination.x) - Math.abs(finalpoint.source.x)) < aux2 ) {
+            aux2 = Math.abs(Math.abs(destination.x) - Math.abs(finalpoint.source.x));
+            nearRoad = finalpoint.source;
+        }
+    }
+
+    routePoints.push({x: nearRoad.x, z: nearRoad.z});                               //routePoint[] destination
+    routePoints.push({x: nearRoad.x, z: destination.z});                            //routePoint[] destination relative
+    console.log(routePoints)
 
     allNodes.pop();                                                                 //removes the temporal node
+    streetLinks.pop();
+    streetLinks.pop();
 
-  /*   routePoints = [  
-        {x:-10, z:5},
-        {x:-10, z:690}, 
-        {x:-690, z:690},
-        {x:-690, z:5},
-        {x:-360, z:5},
-        {x:-360, z:350},
-        {x:-10, z:350},
-        {x:-10, z:690},
-        {x:-360, z:690},
-        {x:-360, z:350},
-        {x:-10, z:350},
-        {x:-10, z:5},
-        {x:-690, z:5} */
 }
 
 function dijkstra() {
+
     let current = allNodes[allNodes.length - 1], bignum = 9999, candidate = [];
-    // current['poggers'] = Infinity;
 
     for (let next of streetLinks) {
         if (next.source === current ) {
@@ -804,6 +792,14 @@ function turnCar() {
     distance = 0
     if ( rIndex >= routePoints.length - 1) {
         arrived = true;
+        houseSelected = tempSelected;
+        sirena.pause();
+        ambulancia.pause();
+        bomberos.pause();
+        document.querySelector(".block").style.visibility = "hidden";
+        document.querySelector(".eventos").style.filter = "opacity(1) grayscale(0)";
+        document.querySelector(".move-select").style.filter = "opacity(1) grayscale(0)";
+
         return;
     }
     
@@ -834,7 +830,43 @@ function turnCar() {
     rIndex++;
 }
 
+var tutorialBtn = document.querySelector(".btn");
+tutorialBtn.addEventListener("click", e => {
+    let TutorialModal = new WinBox("Tutorial",{
+        modal: true,
+        border: 0,
+        width: "80%",
+        height: "80%",
+        x: "center",
+        y: "center",
+        class: [
+            "no-min",
+            "no-max",
+            "no-full",
+            "no-resize",
+        ],
+    });
+    
+    let stringHTML = '<div class="tutorial">';
+        stringHTML += '<div class="tutorial-container"><img src="./res/img/click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);"><a class="texto"> Click en la rueda del mouse: arrastra la camara por la pantalla.</a></div>'
+        stringHTML += '<div class="tutorial-container"><img src="./res/img/right-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);"><a class="texto"> Click derecho del mouse: mueve la camara por la pantalla.</a></div>';
+        stringHTML += '<div class="tutorial-container"><img src="./res/img/left-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);"><a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información.</a></div>';
+        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/firefighter.png"><a class="texto"> Click en el botón del bombero para generar un incendio en la casa indicada.</a></div>';
+        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/bad-person.png"><a class="texto"> Click en el botón del ladrón para generar un robo en la casa indicada.</a></div>';
+        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/doctor.png"><a class="texto"> Click en el botón del ladrón para generar una emergencia medica en la casa indicada.</a></div>';
+        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" src="./res/img/volume.png"><a class="texto"> Click en el botón de mute para silenciar las alertas.</a></div>';
+        stringHTML += '</div>';
+        stringHTML += '<div class="examples">';
+        stringHTML += '<img style="height: 200px; width: 200px; margin: 25px; border: 8px solid #0d1117; border-radius: 15px;" src="./res/img/modal.gif">';
+        stringHTML += '<br>'
+        stringHTML += '<a class="texto">Al hacer click en una casa se desplegarán los EVENTOS.</a>';
+        stringHTML += '</div>';
+
+        TutorialModal.body.innerHTML = stringHTML;    
+})
+
 function onWindowResize() {
+
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -848,10 +880,10 @@ function onWindowResize() {
 }
 
 function animate() {
+
     requestAnimationFrame( animate );
 
-    /* sim.rotation.y += 0.02;
-    sim2.rotation.y += 0.02; */
+    const delta = clock.getDelta();
 
     if ( newcar && !arrived ) {
 
@@ -862,13 +894,16 @@ function animate() {
         else if (Math.abs(newcar.position[axis]) < Math.abs(routePoints[rIndex][axis]) && back) turnCar();
     }
     
-    // uniforms[ 'rayleigh' ].value += 0.01;
     elevation += 0.05553
     const phi = THREE.MathUtils.degToRad( 90 - elevation );
     const theta = THREE.MathUtils.degToRad( -120 );
     sun.setFromSphericalCoords( 1, phi, theta );
     uniforms[ 'sunPosition' ].value.copy( sun );
     
+    timer.innerHTML = "Time: " + Math.floor(elevation / 15 + 8) + '<span style="color:#4d2dff">' + ( (elevation / 15 + 8) > 12 ? 'PM🌙' : 'AM🌞') + '</span>';
+
+    if ( elevation > 240 ) elevation = -10;
+
     /* 
     if ( elevation > 180 ) {
         uniforms[ 'rayleigh' ].value = 0.025;
@@ -906,56 +941,21 @@ function animate() {
     */
 
     controls.update();
-    //render();
+    stats.update();
     composer.render();
 }
 
 function render() {
+
     raycaster.setFromCamera(mouse, camera);
 
     renderer.render( scene, camera );
 }
 
-var tutorialBtn = document.querySelector(".btn");
-tutorialBtn.addEventListener("click", e => {
-    let TutorialModal = new WinBox("Tutorial",{
-        modal: true,
-        border: 0,
-        width: "80%",
-        height: "80%",
-        x: "center",
-        y: "center",
-        class: [
-            "no-min",
-            "no-max",
-            "no-full",
-            "no-resize",
-        ],
-    });
-    
-    let stringHTML = '<div class="tutorial">';
-        stringHTML += '<div class="tutorial-container"><img src="./res/img/click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);"><a class="texto"> Click en la rueda del mouse: arrastra la camara por la pantalla.</a></div>'
-        stringHTML += '<div class="tutorial-container"><img src="./res/img/right-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);"><a class="texto"> Click derecho del mouse: mueve la camara por la pantalla.</a></div>';
-        stringHTML += '<div class="tutorial-container"><img src="./res/img/left-click.png" style="height: 70px; width: 70px; margin: 25px; filter: invert(1);"><a class="texto"> Click izquierdo del mouse: selecciona una casa para ver información.</a></div>';
-        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/firefighter.png"><a class="texto"> Click en el botón del bombero para generar un incendio en la casa indicada.</a></div>';
-        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/bad-person.png"><a class="texto"> Click en el botón del ladrón para generar un robo en la casa indicada.</a></div>';
-        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px;" src="./res/img/doctor.png"><a class="texto"> Click en el botón del ladrón para generar una emergencia medica en la casa indicada.</a></div>';
-        stringHTML += '<div class="tutorial-container"><img style="height: 70px; width: 70px; margin: 25px; filter: invert(1);" src="./res/img/mute.png"><a class="texto"> Click en el botón de mute para silenciar las alertas.</a></div>';
-        stringHTML += '</div>';
-        stringHTML += '<div class="examples">';
-        stringHTML += '<img style="height: 200px; width: 200px; margin: 25px; border: 8px solid #0d1117; border-radius: 15px;" src="./res/img/modal.gif">';
-        stringHTML += '<br>'
-        stringHTML += '<a class="texto">Al hacer click en una casa se desplegarán los EVENTOS.</a>';
-        stringHTML += '</div>';
-
-        TutorialModal.body.innerHTML = stringHTML;    
-})
-
 animate();
 
 function onTransitionEnd( event ) {
 
-    scene.remove(sim, sim2);
 	event.target.remove();
 	
 }
