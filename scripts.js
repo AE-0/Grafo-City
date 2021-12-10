@@ -131,7 +131,6 @@ roboBtn.addEventListener("click", e => {
     if (muteBtn.value == "on")  sirena.play();      
     else sirena.pause();
     sirena.loop = true;
-    console.log("🚓🚓");
     logConsole.body.innerHTML += "<p>the police was called at " + nodos[houseSelected].type + " x:" + nodos[houseSelected].x + " z:" +  nodos[houseSelected].z + "</p>";
     document.querySelector(".block").style.visibility = "visible";
     document.querySelector(".eventos").style.filter = "opacity(0.6) grayscale(1)";
@@ -219,22 +218,19 @@ var randomX, randomZ, lastNodo = 0, houseSelected = null, objSelected = null, te
 const nodos = [], vincFamily = [];
 const mtlLoader = new MTLLoader(loadingManager);
 
-let coordHouses = [
+let coordBuildings = [
     {x:-80, y:0, z:110},  //casa inferior-centro-derecha
     {x:-80, y:0, z:240},  //casa inferior-cenrto-izquierda
     {x:-230, y:0, z:240}, //casa centro-izquierda
     {x:-230, y:0, z:580}, //casa centro-far-izquierda
     {x:-230, y:0, z:110}, //casa centro-derecha
-];
-
-let coordBuildings = [
-    {x:-80, y:0, z:590},    //school
-    {x:-80, y:0, z:450},    //agua
-    {x:-600, y:0, z:270},   //luz
-    {x:-600, y:0, z:450},   //hospital
-    {x:-230, y:0, z:470},   //bomberos
-    {x:-800, y:0, z:300},   //supermarket
-    {x:-800, y:0, z:500}    //police
+    {x:-80, y:0, z:590},  //school
+    {x:-80, y:0, z:450},  //agua
+    {x:-600, y:0, z:270}, //luz
+    {x:-600, y:0, z:450}, //hospital
+    {x:-230, y:0, z:470}, //bomberos
+    {x:-800, y:0, z:300}, //supermarket
+    {x:-800, y:0, z:500}  //police
 ];
 
 var streetNodes = [
@@ -261,6 +257,7 @@ var streetLinks = [
     {source: streetNodes[4], target: streetNodes[1], weight: Math.floor(Math.random() * 100)},{source: streetNodes[1], target: streetNodes[4], weight: Math.floor(Math.random() * 100)}
 ];
 
+globalThis.streetLinks = streetLinks;
 
 var routePoints =[];
 
@@ -281,11 +278,11 @@ function houses() {
             const objLoader = new OBJLoader(loadingManager);
             objLoader.setMaterials(mtl);
             objLoader.load('./res/models/house_type0' + index + '.obj', (root) => {
-                let hCoords = parseInt(Math.random() * (coordHouses.length));
+                let hCoords = parseInt(Math.random() * (coordBuildings.length));
                 root.scale.x = 50, root.scale.z = 50, root.scale.y = 50;
-                root.position.set( coordHouses[hCoords].x , coordHouses[hCoords].y , coordHouses[hCoords].z );
-                if (coordHouses[hCoords].x == -230)  root.rotation.y = 3 * (Math.PI) /  -2;
-                else if (coordHouses[hCoords].x == -600)  root.rotation.y = 3 * (Math.PI) /  -2;
+                root.position.set( coordBuildings[hCoords].x , coordBuildings[hCoords].y , coordBuildings[hCoords].z );
+                if (coordBuildings[hCoords].x == -230)  root.rotation.y = 3 * (Math.PI) /  -2;
+                else if (coordBuildings[hCoords].x == -600)  root.rotation.y = 3 * (Math.PI) /  -2;
                 else root.rotation.y = Math.PI / - 2;
                 root.name = 'house' + index + '';
                 scene.add(root);
@@ -428,7 +425,6 @@ function cars() {
                     default:
                         randomX = -330, randomZ = 100;
                         root.rotation.y = Math.PI / -2;
-                        console.log("pog");
                         break;
                 }
                 root.position.set(randomX, 0, randomZ);
@@ -558,7 +554,7 @@ function genGrafo(type , index) {
         return;
     }
     else {
-        nodos.push({ id: ++lastNodo, type: type + String(lastNodo), x: coordHouses[index].x , z: coordHouses[index].z })
+        nodos.push({ id: ++lastNodo, type: type + String(lastNodo), x: coordBuildings[index].x , z: coordBuildings[index].z })
     }
     let nRandom = Math.floor(Math.random() * 5);
     let l = nodos[lastNodo - 1];
@@ -592,7 +588,7 @@ function genGrafo(type , index) {
         default:
             break;
     }
-    coordHouses.splice(index, 1);
+    coordBuildings.splice(index, 1);
     vincFamily.push({ house: l, family: family});
     globalThis.family = family;
     globalThis.vincFamily = vincFamily;  
@@ -676,7 +672,6 @@ function onPointerDown(event) {
     // if (intersects.length > 0) {
 
         const object = intersects[0].object;
-        console.log(object)
 
         if ( document.querySelector(".winbox.houseModal > .wb-body > .family") ) {            
             document.querySelector(".winbox.houseModal > .wb-body > .family").remove();
@@ -732,7 +727,14 @@ function route(goto) {
     streetLinks.push({source: allNodes[20], target: nearRoad, weight: Math.floor(Math.random() * 100)})     //streetLinks[20] temporal link needed for Dijkstra's algorithm
     streetLinks.push({source: allNodes[20], target: nearRoad2, weight: Math.floor(Math.random() * 100)})    //streetLinks[21] temporal link needed for Dijkstra's algorithm
 
-    dijkstra();
+    let current = allNodes[allNodes.length - 1];
+
+    for (let next of streetLinks) {
+        if (next.source === current ) {
+            current = next.target;
+            routePoints.push({x: current.x, z: current.z})
+        }
+    }
 
     for (let i of allNodes.slice(0, 12)) {
         if (goto == i.type) {
@@ -740,9 +742,9 @@ function route(goto) {
            break;
         }
     }
-    
     for (let finalpoint of streetLinks) {
         if ( Math.abs(Math.abs(destination.x) - Math.abs(finalpoint.source.x)) < aux2 ) {
+            if ( finalpoint.source.z == 690 ) finalpoint.source.z = -690;
             aux2 = Math.abs(Math.abs(destination.x) - Math.abs(finalpoint.source.x));
             nearRoad = finalpoint.source;
         }
@@ -750,7 +752,6 @@ function route(goto) {
 
     routePoints.push({x: nearRoad.x, z: nearRoad.z});                               //routePoint[] destination
     routePoints.push({x: nearRoad.x, z: destination.z});                            //routePoint[] destination relative
-    console.log(routePoints)
 
     allNodes.pop();                                                                 //removes the temporal node
     streetLinks.pop();
@@ -758,34 +759,6 @@ function route(goto) {
 
 }
 
-function dijkstra() {
-
-    let current = allNodes[allNodes.length - 1], bignum = 9999, candidate = [];
-
-    for (let next of streetLinks) {
-        if (next.source === current ) {
-            console.log(next);
-            current = next.target;
-            routePoints.push({x: current.x, z: current.z})
-        }
-    }
-    /* 
-    for (let next2 of streetLinks) {
-        for (let next of streetLinks) {
-            if (next.source === current) {
-                console.log(next);
-                next['origin'] = current.id;
-                next['acomulatedW'] = next.weight;
-                if (next.weight < bignum ) {
-                    bignum = next.weight;
-                    candidate = next;
-                }
-            }
-        }
-        current = candidate.target;
-        routePoints.push({x: current.x, z: current.z})
-    } */
-}
 
 function turnCar() {
     
@@ -903,42 +876,6 @@ function animate() {
     timer.innerHTML = "Time: " + Math.floor(elevation / 15 + 8) + '<span style="color:#4d2dff">' + ( (elevation / 15 + 8) > 12 ? 'PM🌙' : 'AM🌞') + '</span>';
 
     if ( elevation > 240 ) elevation = -10;
-
-    /* 
-    if ( elevation > 180 ) {
-        uniforms[ 'rayleigh' ].value = 0.025;
-        uniforms[ 'mieCoefficient' ].value = 0.001;
-        uniforms[ 'mieDirectionalG' ].value = 0.9993;
-        renderer.toneMappingExposure = 0.5;
-        elevation = 0;
-    }
-     */
-    /*   if ( elevation > 90 ) {
-        hemiLight.intensity -= 0.000203;
-        dirLight.intensity -= 0.000203;
-        hemiLight.color.setHSL( 28, 95, 46 ); 
-        dirLight.color.setHSL( 28, 95, 46 );
-    }
-
-    if ( elevation > 240 ) {
-        elevation = 0;
-        hemiLight.intensity += 0.25555;
-        dirLight.intensity += 0.55555;
-
-       /*  uniforms[ 'turbidity' ].value += 0.988;
-        uniforms[ 'rayleigh' ].value += 0.43157;
-        uniforms[ 'mieCoefficient' ].value += 0.0011;
-        uniforms[ 'mieDirectionalG' ].value += 0.11; 
-        
-       
-    }
-    if ( elevation > 360) {
-        hemiLight.color.setHSL( 34, 100, 50 );
-        dirLight.color.setHSL( 34, 100, 50 );
-        hemiLight.intensity += 0.4199;
-        dirLight.intensity += 0.5199; 
-    } 
-    */
 
     controls.update();
     stats.update();
